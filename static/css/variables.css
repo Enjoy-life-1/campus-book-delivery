@@ -1,0 +1,77 @@
+/* CSS变量定义 - 全局主题配置 */
+:root {
+    /* 主色调 - 保持不变 */
+    --primary: #007f73;
+    --primary-light: #009688;
+    --primary-dark: #00665c;
+    --secondary: #f8f9fa;
+    --text-dark: #1e293b;
+    --text-gray: #64748b;
+    
+    /* 阴影系统 - 优化层次感 */
+    --shadow-xs: 0 1px 2px rgba(0,0,0,0.05);
+    --shadow-sm: 0 2px 4px rgba(0,0,0,0.08);
+    --shadow: 0 4px 12px rgba(0,0,0,0.1);
+    --shadow-md: 0 6px 16px rgba(0,0,0,0.12);
+    --shadow-lg: 0 8px 24px rgba(0,0,0,0.15);
+    --shadow-hover: 0 12px 32px rgba(0,0,0,0.18);
+    
+    /* 圆角系统 - 统一圆角大小 */
+    --radius-xs: 4px;
+    --radius-sm: 6px;
+    --radius: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 20px;
+    --radius-full: 9999px;
+    
+    /* 过渡动画 - 优化流畅度 */
+    --transition-fast: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-slow: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    /* 间距系统 - 统一间距 */
+    --spacing-xs: 0.25rem;
+    --spacing-sm: 0.5rem;
+    --spacing: 1rem;
+    --spacing-md: 1.5rem;
+    --spacing-lg: 2rem;
+    --spacing-xl: 3rem;
+    --spacing-2xl: 4rem;
+    
+    /* 字体大小 - 优化层次 */
+    --font-xs: 0.75rem;
+    --font-sm: 0.875rem;
+    --font-base: 1rem;
+    --font-md: 1.125rem;
+    --font-lg: 1.25rem;
+    --font-xl: 1.5rem;
+    --font-2xl: 1.875rem;
+    --font-3xl: 2.25rem;
+    
+    /* 行高 */
+    --line-height-tight: 1.25;
+    --line-height-normal: 1.5;
+    --line-height-relaxed: 1.75;
+    
+    /* 边框 */
+    --border-width: 1px;
+    --border-color: #e2e8f0;
+    --border-color-light: #f1f5f9;
+    
+    /* 背景色 */
+    --bg-primary: #ffffff;
+    --bg-secondary: #f8fafc;
+    --bg-tertiary: #f1f5f9;
+    
+    /* 管理员主题变量 */
+    --admin-primary: #007f73;
+    --admin-secondary: #6c757d;
+    --admin-success: #007f73;
+    --admin-danger: #dc3545;
+    --admin-warning: #ffc107;
+    --admin-info: #17a2b8;
+    --admin-light: #f8f9fa;
+    --admin-dark: #343a40;
+    --sidebar-width: 240px;
+}

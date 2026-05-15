@@ -1,0 +1,171 @@
+/* 管理员侧边栏组件样式 */
+@import url('../utils/variables.css');
+
+.sidebar {
+    width: var(--sidebar-width);
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: var(--admin-dark);
+    color: white;
+    padding-top: 1rem;
+    transition: transform 0.3s ease;
+    z-index: 100;
+    overflow-y: auto;
+}
+
+.sidebar.collapsed {
+    transform: translateX(-100%);
+}
+
+/* 侧边栏头部 */
+.sidebar-header {
+    padding: 0 1.5rem 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-decoration: none;
+    color: white;
+}
+
+.sidebar-brand i {
+    font-size: 1.8rem;
+    color: var(--admin-primary);
+}
+
+.sidebar-brand h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+/* 侧边栏导航 */
+.sidebar-nav {
+    padding: 1.5rem 0;
+}
+
+.nav-group {
+    margin-bottom: 1.5rem;
+}
+
+.nav-group-title {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: rgba(255, 255, 255, 0.6);
+    font-weight: 500;
+}
+
+.nav-item {
+    margin-bottom: 0.25rem;
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem 1.5rem;
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border-left: 3px solid transparent;
+}
+
+.nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.nav-link.active {
+    background-color: var(--admin-primary);
+    color: white;
+    border-left-color: white;
+    font-weight: 500;
+}
+
+.nav-link i {
+    font-size: 1.1rem;
+    width: 1.5rem;
+    text-align: center;
+}
+
+/* 折叠按钮 */
+.toggle-sidebar-btn {
+    position: absolute;
+    top: 1rem;
+    right: -30px;
+    width: 30px;
+    height: 50px;
+    background-color: var(--admin-dark);
+    border: none;
+    border-radius: 0 4px 4px 0;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.toggle-sidebar-btn:hover {
+    background-color: var(--admin-primary);
+}
+
+/* 侧边栏底部 */
+.sidebar-footer {
+    padding: 1.5rem;
+    margin-top: auto;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: var(--admin-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+}
+
+.user-details h4 {
+    margin: 0 0 0.25rem 0;
+    font-size: 1rem;
+}
+
+.user-details p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+/* 响应式调整 */
+@media (max-width: 992px) {
+    .sidebar {
+        transform: translateX(-100%);
+    }
+    
+    .sidebar.active {
+        transform: translateX(0);
+    }
+    
+    .toggle-sidebar-btn {
+        right: auto;
+        left: 1rem;
+        border-radius: 4px;
+        z-index: 101;
+    }
+}

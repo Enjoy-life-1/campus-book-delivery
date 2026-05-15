@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>校园书递 - 管理员控制台</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- 样式文件 -->
+    <link href="{{ url_for('static', filename='css/variables.css') }}?v=1.0" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/global.css') }}?v=1.0" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/admin.css') }}?v=2.0" rel="stylesheet">
+</head>
+<body class="admin-body">
+    <!-- 侧边栏导航 -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <img src="{{ url_for('static', filename='img/logo.png') }}" alt="校园书递" class="sidebar-logo">
+            <span class="sidebar-title">校园书递</span>
+        </div>
+        <nav class="sidebar-nav">
+            <ul class="nav-list">
+                <li class="nav-item active">
+                    <a href="#" class="nav-link">
+                        <i class="fa fa-dashboard"></i>
+                        <span>控制台</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('admin_book_management_page') }}" class="nav-link">
+                        <i class="fa fa-book"></i>
+                        <span>书籍管理</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('admin_user_management_page') }}" class="nav-link">
+                        <i class="fa fa-users"></i>
+                        <span>用户管理</span>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a href="{{ url_for('admin_analytics_page') }}" class="nav-link">
+                        <i class="fa fa-bar-chart"></i>
+                        <span>数据分析</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('admin_settings_page') }}" class="nav-link">
+                        <i class="fa fa-cog"></i>
+                        <span>系统设置</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </aside>
+
+    <!-- 顶部导航栏 -->
+    <header class="top-navbar">
+        <div class="header-left">
+            <button class="sidebar-toggle">
+                <i class="fa fa-bars"></i>
+            </button>
+            <div class="brand-container">
+                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="校园书递" class="logo-btn">
+                <span class="page-title">管理员控制台</span>
+            </div>
+        </div>
+        <div class="header-right">
+            <button class="refresh-data-btn primary-btn" id="refreshDataBtn" title="刷新数据">
+                <i class="fa fa-refresh"></i>
+                <span>更新数据</span>
+            </button>
+
+            <div class="user-profile">
+                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="管理员头像" class="avatar">
+                <span class="username">{{ username }}</span>
+                <i class="fa fa-chevron-down"></i>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主内容区域 -->
+    <main class="main-content">
+        <div class="container-fluid">
+            <!-- 统计卡片区域 -->
+            <div class="stats-cards">
+                <a href="{{ url_for('admin_books_page') }}" class="stat-card stat-card-link" style="text-decoration: none; color: inherit;">
+                    <div class="stat-icon primary">
+                        <i class="fa fa-book"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="totalBooksCount">0</h3>
+                        <p>书籍数量</p>
+                    </div>
+                </a>
+                <a href="{{ url_for('admin_users_list_page') }}" class="stat-card stat-card-link" style="text-decoration: none; color: inherit;">
+                    <div class="stat-icon success">
+                        <i class="fa fa-user-check"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="registeredUsersCount">0</h3>
+                        <p>注册用户</p>
+                    </div>
+                </a>
+                <a href="{{ url_for('admin_sales_page') }}" class="stat-card stat-card-link" style="text-decoration: none; color: inherit;">
+                    <div class="stat-icon warning">
+                        <i class="fa fa-eye"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="monthlySalesCount">0</h3>
+                        <p>本月销量</p>
+                    </div>
+                </a>
+                <a href="{{ url_for('admin_pending_page') }}" class="stat-card stat-card-link" style="text-decoration: none; color: inherit;">
+                    <div class="stat-icon danger">
+                        <i class="fa fa-clock"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="pendingTasksCount">0</h3>
+                        <p>待处理</p>
+                    </div>
+                </a>
+            </div>
+
+            <!-- 搜索和筛选区域 -->
+            <div class="search-filter">
+                <div class="filter-row">
+                    <div class="filter-group">
+                        <select id="bookCategoryFilter" class="filter-select">
+                            <option value="all">全部分类</option>
+                            <option value="textbook">教材</option>
+                            <option value="literature">文学</option>
+                            <option value="science">科学技术</option>
+                            <option value="other">其他</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <select id="priceRangeFilter" class="filter-select">
+                            <option value="all">全部价格</option>
+                            <option value="0-50">0-50元</option>
+                            <option value="50-100">50-100元</option>
+                            <option value="100+">100元以上</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <select id="publishTimeFilter" class="filter-select">
+                            <option value="all">全部时间</option>
+                            <option value="today">今日</option>
+                            <option value="week">本周</option>
+                            <option value="month">本月</option>
+                        </select>
+                    </div>
+                    <div class="search-input-group">
+                        <input type="text" id="bookSearchInput" placeholder="输入书名、作者或卖家" class="search-input">
+                        <button class="search-btn">
+                            <i class="fa fa-search"></i> 搜索
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        <!-- 内容展示区域 -->
+        <div class="content-area">
+            <!-- 书籍列表 -->
+            <div id="books-section" class="content-section active">
+                <!-- 批量操作按钮组 -->
+                <div class="batch-actions">
+                    <div class="select-all-group">
+                        <input type="checkbox" id="selectAllBooks" class="select-all-checkbox">
+                        <label for="selectAllBooks">全选</label>
+                    </div>
+                    <div class="batch-buttons">
+                        <button class="btn btn-success btn-sm" id="exportSelectedBtn" disabled>
+                            <i class="fas fa-file-export"></i> 导出选中
+                        </button>
+                        <button class="btn btn-success btn-sm" id="exportAllBtn">
+                            <i class="fas fa-file-download"></i> 导出全部
+                        </button>
+                        <button class="btn btn-danger btn-sm" id="deleteSelectedBtn" disabled>
+                            <i class="fas fa-trash-alt"></i> 删除选中
+                        </button>
+                        <button class="btn btn-danger btn-sm" id="deleteAllBtn">
+                            <i class="fas fa-trash-can"></i> 删除全部
+                        </button>
+                    </div>
+                    <div class="selected-info">
+                        <span id="selectedCount">已选择: 0 项</span>
+                    </div>
+                </div>
+                
+                <div class="data-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th class="checkbox-col">
+                                    <input type="checkbox" id="selectAllBooksHeader" class="select-all-checkbox">
+                                </th>
+                                <th>ID</th>
+                                <th>书名</th>
+                                <th>作者</th>
+                                <th>分类</th>
+                                <th>价格</th>
+                                <th>库存</th>
+                                <th>发布时间</th>
+                                <th>状态</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="booksTableBody">
+                            <!-- 添加一些示例数据，实际应用中会被JavaScript覆盖 -->
+                            <tr>
+                                <td><input type="checkbox" class="book-checkbox"></td>
+                                <td>1</td>
+                                <td>数学分析（第三版）</td>
+                                <td>同济大学数学系</td>
+                                <td>数学</td>
+                                <td>¥115.00</td>
+                                <td>20</td>
+                                <td>2023-10-20</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="action-btn-small view" title="查看"><i class="fas fa-eye"></i></button>
+                                        <button class="action-btn-small edit" title="编辑"><i class="fas fa-edit"></i></button>
+                                        <button class="action-btn-small delete" title="删除"><i class="fas fa-trash"></i></button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div id="booksTableEmpty" class="empty-state">
+                    <div class="stat-card empty-state-card">
+                        <div class="stat-icon primary">
+                            <i class="fa fa-search"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>未找到符合条件的书籍</h3>
+                            <p>尝试调整筛选条件或搜索其他关键词</p>
+                        </div>
+                    </div>
+                </div>
+
+            <!-- 用户管理区域 -->
+            <div id="users-section" class="content-section" style="display: none;">
+                <div class="table-responsive">
+                    <table class="data-table" id="usersTable">
+                        <thead>
+                            <tr>
+                                <th>用户ID</th>
+                                <th>用户名</th>
+                                <th>角色</th>
+                                <th>注册时间</th>
+                                <th>状态</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody">
+                            <!-- 用户数据将通过JavaScript动态加载 -->
+                        </tbody>
+                    </table>
+                </div>
+                <div id="usersTableEmpty" class="empty-state">
+                    <div class="empty-icon"><i class="fa fa-user-minus"></i></div>
+                    <p>未找到符合条件的用户</p>
+                </div>
+            </div>
+
+            <!-- 分类管理区域 -->
+            <div id="categories-section" class="content-section" style="display: none;">
+                <div class="table-responsive">
+                    <table class="data-table" id="categoriesTable">
+                        <thead>
+                            <tr>
+                                <th>分类ID</th>
+                                <th>分类名称</th>
+                                <th>分类代码</th>
+                                <th>书籍数量</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="categoriesTableBody">
+                            <!-- 分类数据将通过JavaScript动态加载 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 系统设置区域 -->
+            <div id="settings-section" class="content-section" style="display: none;">
+                <div class="settings-container">
+                    <form id="settingsForm">
+                        <div class="form-group">
+                            <label>系统名称</label>
+                            <input type="text" class="form-control" id="systemName" value="校园书递">
+                        </div>
+                        <div class="form-group">
+                            <label>每页显示条数</label>
+                            <input type="number" class="form-control" id="pageSize" value="10" min="5" max="50">
+                        </div>
+                        <div class="form-group">
+                            <label>自动清理缓存天数</label>
+                            <input type="number" class="form-control" id="cacheDays" value="7" min="1" max="30">
+                        </div>
+                        <div class="form-group">
+                            <label>注册开关</label>
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="enableRegister" checked>
+                                <label for="enableRegister">开启用户注册</label>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">保存设置</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 添加用户模态框 -->
+    <div class="modal" id="addUserModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">添加用户</h3>
+                <button class="close-modal" id="closeAddUserModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="addUserForm">
+                    <div class="form-group">
+                        <label>用户名</label>
+                        <input type="text" class="form-control" id="newUsername" required>
+                    </div>
+                    <div class="form-group">
+                        <label>密码</label>
+                        <input type="password" class="form-control" id="newPassword" required>
+                    </div>
+                    <div class="form-group">
+                        <label>用户角色</label>
+                        <select class="form-control" id="newUserRole" required>
+                            <option value="student">学生</option>
+                            <option value="admin">管理员</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelAddUserBtn">取消</button>
+                <button class="btn btn-primary" id="confirmAddUserBtn">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 查看书籍详情模态框 -->
+    <div class="modal" id="view-book-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">书籍详情</h3>
+                <button class="close-modal" onclick="closeModal('view-book-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="bookDetailContent">
+                    <p>加载中...</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('view-book-modal')">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑书籍模态框 -->
+    <div class="modal" id="edit-book-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">编辑书籍</h3>
+                <button class="close-modal" onclick="closeModal('edit-book-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="editBookForm">
+                    <input type="hidden" id="editBookId">
+                    <div class="form-group">
+                        <label>书名</label>
+                        <input type="text" class="form-control" id="editBookTitle" required>
+                    </div>
+                    <div class="form-group">
+                        <label>作者</label>
+                        <input type="text" class="form-control" id="editBookAuthor" required>
+                    </div>
+                    <div class="form-group">
+                        <label>分类</label>
+                        <select class="form-control" id="editBookCategory" required>
+                            <option value="">请选择分类</option>
+                            <option value="textbook">教材教辅</option>
+                            <option value="postgraduate">考研资料</option>
+                            <option value="literature">文学小说</option>
+                            <option value="professional">专业书籍</option>
+                            <option value="other">其他书籍</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>价格</label>
+                        <input type="number" class="form-control" id="editBookPrice" step="0.01" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label>描述</label>
+                        <textarea class="form-control" id="editBookDescription" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>状态</label>
+                        <select class="form-control" id="editBookStatus" required>
+                            <option value="available">在售</option>
+                            <option value="sold">已售出</option>
+                            <option value="pending">待处理</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('edit-book-modal')">取消</button>
+                <button class="btn btn-primary" id="saveEditBookBtn">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 删除书籍模态框 -->
+    <div class="modal" id="delete-book-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">确认删除</h3>
+                <button class="close-modal" onclick="closeModal('delete-book-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="deleteBookMessage">确定要删除这本书籍吗？此操作不可撤销。</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('delete-book-modal')">取消</button>
+                <button class="btn btn-danger" id="delete-confirm-btn">确认删除</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加书籍模态框 -->
+    <div class="modal" id="addBookModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">添加书籍</h3>
+                <button class="close-modal" id="closeAddBookModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="addBookForm">
+                    <div class="form-group">
+                        <label>书名</label>
+                        <input type="text" class="form-control" id="newBookTitle" required>
+                    </div>
+                    <div class="form-group">
+                        <label>作者</label>
+                        <input type="text" class="form-control" id="newBookAuthor" required>
+                    </div>
+                    <div class="form-group">
+                        <label>分类</label>
+                        <select class="form-control" id="newBookCategory" required>
+                            <option value="">请选择分类</option>
+                            <option value="textbook">教材教辅</option>
+                            <option value="postgraduate">考研资料</option>
+                            <option value="literature">文学小说</option>
+                            <option value="professional">专业书籍</option>
+                            <option value="other">其他书籍</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>价格</label>
+                        <input type="number" class="form-control" id="newBookPrice" step="0.01" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label>库存</label>
+                        <input type="number" class="form-control" id="newBookStock" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label>描述</label>
+                        <textarea class="form-control" id="newBookDescription" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelAddBookBtn">取消</button>
+                <button class="btn btn-primary" id="confirmAddBookBtn">确定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- jQuery - 带有fallback机制 -->
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js" onload="console.log('jQuery加载成功')" onerror="console.error('jQuery加载失败'); this.onerror=null; this.src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js'"></script>
+    <!-- Bootstrap 5 JS - 带有fallback机制 -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" onload="console.log('Bootstrap JS加载成功')" onerror="console.error('Bootstrap JS加载失败'); this.onerror=null; this.src='https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/js/bootstrap.bundle.min.js'"></script>
+    <!-- 引入全局JavaScript文件 -->
+    <script src="../static/js/global.js" defer></script>
+    <!-- 引入通用功能模块 -->
+    <script src="../static/js/common.js" defer></script>
+    <!-- 引入管理员功能模块 -->
+    <script src="../static/js/admin.js"></script>
+    <script>
+        // 退出登录确认
+        function confirmLogout() {
+            if (confirm('确定要退出登录吗？')) {
+                window.location.href = '/login';
+            }
+        }
+        
+        // 状态按钮点击事件
+        document.querySelectorAll('.status-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // 移除所有按钮的active类
+                document.querySelectorAll('.status-btn').forEach(b => {
+                    b.classList.remove('active');
+                });
+                // 为当前点击的按钮添加active类
+                this.classList.add('active');
+            });
+        });
+        
+        // 关闭模态框函数
+        window.closeModal = function(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.remove('active');
+            }
+        };
+        
+        // 点击模态框外部关闭
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.remove('active');
+                }
+            });
+        });
+        
+        // 删除确认按钮
+        const deleteConfirmBtn = document.getElementById('delete-confirm-btn');
+        if (deleteConfirmBtn) {
+            deleteConfirmBtn.addEventListener('click', async function() {
+                const modal = document.getElementById('delete-book-modal');
+                const bookId = modal.dataset.bookId;
+                
+                if (!bookId) {
+                    return;
+                }
+                
+                try {
+                    const response = await fetch(`/api/books/${bookId}`, {
+                        method: 'DELETE',
+                        credentials: 'include'
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.status === 'success') {
+                        alert('书籍删除成功');
+                        closeModal('delete-book-modal');
+                        // 重新加载书籍列表
+                        if (typeof initBooksTable === 'function') {
+                            await initBooksTable();
+                        } else if (typeof filterBooks === 'function') {
+                            filterBooks();
+                        }
+                    } else {
+                        alert('删除失败：' + (result.message || '未知错误'));
+                    }
+                } catch (error) {
+                    console.error('删除书籍失败:', error);
+                    alert('删除书籍时发生错误，请稍后重试');
+                }
+            });
+        }
+        
+        // 批量操作按钮事件绑定 - 确保在admin.js加载后执行
+        function initBatchActions() {
+            const exportSelectedBtn = document.getElementById('exportSelectedBtn');
+            const exportAllBtn = document.getElementById('exportAllBtn');
+            const deleteSelectedBtn = document.getElementById('deleteSelectedBtn');
+            const deleteAllBtn = document.getElementById('deleteAllBtn');
+            
+            // 导出选中
+            if (exportSelectedBtn) {
+                exportSelectedBtn.onclick = function() {
+                    if (typeof window.exportSelectedBooks === 'function') {
+                        window.exportSelectedBooks();
+                    } else {
+                        console.error('exportSelectedBooks函数未定义');
+                        alert('导出功能未加载，请刷新页面重试');
+                    }
+                };
+            }
+            
+            // 导出全部
+            if (exportAllBtn) {
+                exportAllBtn.onclick = function() {
+                    if (typeof window.exportAllBooks === 'function') {
+                        window.exportAllBooks();
+                    } else {
+                        console.error('exportAllBooks函数未定义');
+                        alert('导出功能未加载，请刷新页面重试');
+                    }
+                };
+            }
+            
+            // 删除选中
+            if (deleteSelectedBtn) {
+                deleteSelectedBtn.onclick = function() {
+                    if (typeof window.deleteSelectedBooks === 'function') {
+                        window.deleteSelectedBooks();
+                    } else {
+                        console.error('deleteSelectedBooks函数未定义');
+                        alert('删除功能未加载，请刷新页面重试');
+                    }
+                };
+            }
+            
+            // 删除全部
+            if (deleteAllBtn) {
+                deleteAllBtn.onclick = function() {
+                    if (typeof window.deleteAllBooks === 'function') {
+                        window.deleteAllBooks();
+                    } else {
+                        console.error('deleteAllBooks函数未定义');
+                        alert('删除功能未加载，请刷新页面重试');
+                    }
+                };
+            }
+        }
+        
+        // 等待admin.js加载完成后再初始化批量操作
+        function waitForAdminJS() {
+            // 检查函数是否已加载
+            if (typeof window.exportSelectedBooks === 'function' && 
+                typeof window.deleteSelectedBooks === 'function') {
+                console.log('admin.js已加载，初始化批量操作功能');
+                initBatchActions();
+            } else {
+                // 如果admin.js还没加载，等待一段时间后重试（最多等待5秒）
+                let retryCount = 0;
+                const maxRetries = 50;
+                const checkInterval = setInterval(() => {
+                    retryCount++;
+                    if (typeof window.exportSelectedBooks === 'function' && 
+                        typeof window.deleteSelectedBooks === 'function') {
+                        clearInterval(checkInterval);
+                        console.log('admin.js已加载，初始化批量操作功能');
+                        initBatchActions();
+                    } else if (retryCount >= maxRetries) {
+                        clearInterval(checkInterval);
+                        console.error('admin.js加载超时，批量操作功能可能不可用');
+                    }
+                }, 100);
+            }
+        }
+        
+        // 页面加载完成后初始化批量操作
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
+                waitForAdminJS();
+            });
+        } else {
+            waitForAdminJS();
+        }
+        
+        // 查看书籍详情
+        window.viewBook = function(bookId) {
+            window.location.href = `/book/${bookId}`;
+        };
+        
+        // 确认删除单本书籍
+        window.confirmDeleteBook = function(bookId) {
+            const modal = document.getElementById('delete-book-modal');
+            if (modal) {
+                modal.dataset.bookId = bookId;
+                modal.classList.add('active');
+            } else {
+                if (confirm('确定要删除这本书籍吗？此操作不可撤销。')) {
+                    deleteSingleBook(bookId);
+                }
+            }
+        };
+        
+        // 删除单本书籍
+        async function deleteSingleBook(bookId) {
+            try {
+                const response = await fetch(`/api/books/${bookId}`, {
+                    method: 'DELETE',
+                    credentials: 'include'
+                });
+                
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    if (typeof showToast === 'function') {
+                        showToast('书籍删除成功', 'success');
+                    } else {
+                        alert('书籍删除成功');
+                    }
+                    // 重新加载书籍列表
+                    if (typeof initBooksTable === 'function') {
+                        await initBooksTable();
+                    }
+                } else {
+                    if (typeof showToast === 'function') {
+                        showToast('删除失败：' + (result.message || '未知错误'), 'error');
+                    } else {
+                        alert('删除失败：' + (result.message || '未知错误'));
+                    }
+                }
+            } catch (error) {
+                console.error('删除书籍失败:', error);
+                if (typeof showToast === 'function') {
+                    showToast('删除书籍时发生错误，请稍后重试', 'error');
+                } else {
+                    alert('删除书籍时发生错误，请稍后重试');
+                }
+            }
+        }
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化书籍表格（如果书籍管理区域可见）
+            const booksSection = document.getElementById('books-section');
+            if (booksSection && booksSection.classList.contains('active')) {
+                if (typeof initBooksTable === 'function') {
+                    initBooksTable();
+                }
+            }
+        });
+        
+        // 保存编辑书籍
+        const saveEditBookBtn = document.getElementById('saveEditBookBtn');
+        if (saveEditBookBtn) {
+            saveEditBookBtn.addEventListener('click', async function() {
+                const bookId = document.getElementById('editBookId').value;
+                const title = document.getElementById('editBookTitle').value;
+                const author = document.getElementById('editBookAuthor').value;
+                const category = document.getElementById('editBookCategory').value;
+                const price = document.getElementById('editBookPrice').value;
+                const description = document.getElementById('editBookDescription').value;
+                const status = document.getElementById('editBookStatus').value;
+                
+                if (!title || !author || !category || !price) {
+                    alert('请填写所有必填字段');
+                    return;
+                }
+                
+                try {
+                    const response = await fetch(`/api/books/${bookId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        credentials: 'include',
+                        body: JSON.stringify({
+                            title: title,
+                            author: author,
+                            category: category,
+                            price: parseFloat(price),
+                            description: description,
+                            status: status
+                        })
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.status === 'success') {
+                        alert('书籍更新成功');
+                        closeModal('edit-book-modal');
+                        // 重新加载书籍列表
+                        if (typeof filterBooks === 'function') {
+                            filterBooks();
+                        }
+                    } else {
+                        alert('更新失败：' + (result.message || '未知错误'));
+                    }
+                } catch (error) {
+                    console.error('更新书籍失败:', error);
+                    alert('更新书籍时发生错误，请稍后重试');
+                }
+            });
+        }
+        
+        // 搜索按钮点击事件
+        const searchBtn = document.querySelector('.search-btn');
+        if (searchBtn) {
+            searchBtn.addEventListener('click', function() {
+                if (typeof filterBooks === 'function') {
+                    filterBooks();
+                }
+            });
+        }
+        
+        // 页面加载时初始化书籍列表
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof filterBooks === 'function') {
+                filterBooks();
+            }
+        });
+        
+        // 更新数据按钮点击事件
+        const refreshDataBtn = document.getElementById('refreshDataBtn');
+        if (refreshDataBtn) {
+            refreshDataBtn.addEventListener('click', async function() {
+                // 禁用按钮，显示加载状态
+                const icon = this.querySelector('i');
+                const originalClass = icon.className;
+                icon.className = 'fa fa-spinner fa-spin';
+                this.disabled = true;
+                
+                try {
+                    // 刷新统计数据
+                    if (typeof initDashboardStats === 'function') {
+                        await initDashboardStats();
+                    }
+                    
+                    // 刷新书籍列表
+                    if (typeof filterBooks === 'function') {
+                        await filterBooks();
+                    }
+                    
+                    // 刷新用户列表
+                    if (typeof initUsersTable === 'function') {
+                        await initUsersTable();
+                    }
+                    
+                    // 显示成功提示
+                    if (typeof showToast === 'function') {
+                        showToast('数据更新成功', 'success');
+                    } else {
+                        alert('数据更新成功');
+                    }
+                } catch (error) {
+                    console.error('更新数据失败:', error);
+                    if (typeof showToast === 'function') {
+                        showToast('数据更新失败，请稍后重试', 'error');
+                    } else {
+                        alert('数据更新失败，请稍后重试');
+                    }
+                } finally {
+                    // 恢复按钮状态
+                    icon.className = originalClass;
+                    this.disabled = false;
+                }
+            });
+        }
+    </script>
+    
+    </body>
+</html>

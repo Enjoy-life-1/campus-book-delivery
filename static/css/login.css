@@ -1,0 +1,774 @@
+/* 登录页面特定样式 */
+@import url('variables.css');
+@import url('base.css');
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background-color: #f5f7fa;
+    background-image: url('/static/img/登录.png');
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 1rem; /* 防止边缘溢出 */
+    animation: fadeIn 0.8s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.login-container {
+    min-height: auto;
+    display: flex;
+    background-color: #ffffff;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    max-width: 1000px;
+    margin: 0;
+    width: 90%;
+    border-radius: 12px; /* 增大容器圆角（数值越大越圆） */
+    overflow: hidden; /* 避免内部元素边角溢出容器 */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); /* 可选：增加轻微阴影增强立体感 */
+    animation: slideInUp 0.8s ease-out;
+    position: relative;
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.login-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(0, 127, 115, 0.02) 0%, transparent 100%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* 左侧品牌区域 */
+.brand-side {
+    background: linear-gradient(135deg, #007f73 0%, #009688 50%, #007f73 100%);
+    color: white;
+    padding: 1.2rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    flex: 1;
+    min-width: 50%;
+    min-height: 200px;
+    position: relative;
+    overflow: hidden;
+    animation: slideInLeft 0.8s ease-out 0.2s both;
+}
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.brand-side::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+    animation: rotate 20s linear infinite;
+}
+
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.brand-logo img {
+    max-width: 90px;
+    margin-bottom: 1rem;
+    background-color: white;
+    padding: 1rem;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    position: relative;
+    z-index: 1;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.brand-side:hover .brand-logo img {
+    transform: scale(1.1) rotate(5deg);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.brand-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.8rem;
+    color: white;
+    position: relative;
+    z-index: 1;
+    transition: all 0.3s ease;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.brand-side:hover .brand-title {
+    transform: translateY(-3px);
+    text-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.brand-slogan {
+    font-size: 0.95rem;
+    opacity: 0.95;
+    margin-bottom: 1rem;
+    line-height: 1.6;
+}
+
+.brand-illustration {
+    margin-top: 1rem;
+    width: 400px;
+    height: 300px;
+    border-radius: 20px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    background-color: rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+    z-index: 1;
+}
+
+.brand-side:hover .brand-illustration {
+    transform: scale(1.05);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+.brand-illustration img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 8px; 
+    display: block;
+    transition: transform 0.5s ease;
+    /* 使用mask虚化四个角 */
+    mask-image: radial-gradient(ellipse 80% 80% at center, black 60%, transparent 100%);
+    -webkit-mask-image: radial-gradient(ellipse 80% 80% at center, black 60%, transparent 100%);
+}
+
+.brand-side:hover .brand-illustration img {
+    transform: scale(1.1);
+}
+
+/* 右侧表单区域 */
+.form-side {
+    background-color: white;
+    padding: 1.2rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    flex: 1;
+    min-width: 50%;
+    position: relative;
+    z-index: 1;
+    animation: slideInRight 0.8s ease-out 0.2s both;
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.form-header {
+    margin-bottom: 1.2rem;
+    text-align: center;
+    animation: fadeInUp 0.8s ease-out 0.4s both;
+    position: relative;
+}
+
+.form-header::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary) 0%, var(--primary-light) 100%);
+    border-radius: 3px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.form-header:hover::before {
+    opacity: 1;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.form-header h2 {
+    font-size: 1.6rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #333;
+}
+
+.form-header p {
+    color: #666;
+    font-size: 1rem;
+}
+
+/* 身份选择 */
+.identity-select {
+    display: flex;
+    gap: 0;
+    margin-bottom: 1.6rem;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    transition: var(--transition);
+    animation: fadeInUp 0.8s ease-out 0.5s both;
+}
+
+.identity-select:hover {
+    box-shadow: 0 4px 12px rgba(0, 127, 115, 0.15);
+    border-color: var(--primary-light);
+}
+
+.identity-btn {
+    padding: 0.875rem 1rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #666;
+    background-color: white;
+    position: relative;
+    width: 120px;
+    width: calc(120px + 1cm);
+    overflow: hidden;
+}
+
+.identity-btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(0, 127, 115, 0.1);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s ease, height 0.6s ease;
+}
+
+.identity-btn:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+.identity-btn.active {
+    background: linear-gradient(135deg, #007f73 0%, #009688 100%);
+    color: white;
+    font-weight: 600;
+    box-shadow: 0 4px 15px rgba(0, 127, 115, 0.3);
+    transform: scale(1.05);
+}
+
+.identity-btn:not(.active):hover {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 登录表单 */
+.login-form {
+    max-width: 400px;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.login-tips {
+    background-color: #f8fafc;
+    border-left: 4px solid #007f73;
+    padding: 0.8rem;
+    margin-bottom: 1.2rem;
+    border-radius: 0 8px 8px 0;
+}
+
+.login-tips p {
+    margin-bottom: 0.5rem;
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.login-tips p:last-child {
+    margin-bottom: 0;
+}
+
+.form-group {
+    margin-bottom: 1.2rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #333;
+    font-size: 1rem;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    border-radius: 6px;
+    background-color: white;
+}
+
+.form-control:hover {
+    border-color: #009688;
+    box-shadow: 0 2px 8px rgba(0, 127, 115, 0.1);
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #007f73;
+    box-shadow: 0 0 0 3px rgba(0, 127, 115, 0.1),
+                0 4px 12px rgba(0, 127, 115, 0.15),
+                0 0 20px rgba(0, 127, 115, 0.1);
+    transform: translateY(-2px);
+    background: linear-gradient(135deg, white 0%, #f8fffe 100%);
+}
+
+.form-group {
+    position: relative;
+}
+
+.form-group::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--primary) 0%, var(--primary-light) 100%);
+    transition: width 0.3s ease;
+}
+
+.form-group:focus-within::after {
+    width: 100%;
+}
+
+.form-control::placeholder {
+    transition: opacity 0.3s ease;
+}
+
+.form-control:focus::placeholder {
+    opacity: 0.5;
+}
+
+/* 表单选项 */
+.form-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.2rem;
+}
+
+.remember-me {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.remember-me input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.remember-me label {
+    font-weight: normal;
+    cursor: pointer;
+    color: #666;
+    font-size: 0.9rem;
+    transition: var(--transition);
+}
+
+.remember-me:hover label {
+    color: var(--primary);
+    transform: translateX(3px);
+}
+
+.remember-me input[type="checkbox"] {
+    transition: var(--transition);
+}
+
+.remember-me:hover input[type="checkbox"] {
+    transform: scale(1.1);
+    accent-color: var(--primary);
+}
+
+.forgot-password {
+    color: #007f73;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+}
+
+.forgot-password:hover {
+    color: #005a50;
+    background: linear-gradient(135deg, rgba(0, 127, 115, 0.1) 0%, rgba(0, 150, 136, 0.1) 100%);
+    transform: translateX(3px);
+    text-decoration: underline;
+}
+
+.register-link {
+    color: #007f73;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    margin-right: 0.5rem;
+}
+
+.register-link:hover {
+    color: #005a50;
+    background: linear-gradient(135deg, rgba(0, 127, 115, 0.1) 0%, rgba(0, 150, 136, 0.1) 100%);
+    transform: translateX(3px);
+    text-decoration: underline;
+}
+
+/* 登录按钮 */
+.login-btn {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    background: linear-gradient(135deg, #007f73 0%, #009688 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    box-shadow: 0 4px 15px rgba(0, 127, 115, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.login-btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s ease, height 0.6s ease;
+}
+
+.login-btn:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+.login-btn:hover {
+    background: linear-gradient(135deg, #009688 0%, #007f73 100%);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0, 127, 115, 0.4);
+}
+
+.login-btn:hover i {
+    transform: rotate(10deg) scale(1.2);
+    animation: signInSpin 0.5s ease;
+}
+
+@keyframes signInSpin {
+    0% {
+        transform: rotate(0deg) scale(1);
+    }
+    50% {
+        transform: rotate(180deg) scale(1.3);
+    }
+    100% {
+        transform: rotate(360deg) scale(1.2);
+    }
+}
+
+.login-btn i {
+    transition: transform 0.3s ease;
+    position: relative;
+    z-index: 1;
+}
+
+/* 登录错误提示 */
+.login-error {
+    display: none;
+    color: #dc3545;
+    margin-top: 10px;
+    text-align: center;
+    padding: 0.75rem 1rem;
+    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+    border: 1px solid #fecaca;
+    border-left: 4px solid #dc2626;
+    border-radius: 8px;
+    animation: shake 0.5s ease;
+}
+
+@keyframes shake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    25% {
+        transform: translateX(-10px);
+    }
+    75% {
+        transform: translateX(10px);
+    }
+}
+
+.login-error.show {
+    display: block;
+}
+
+/* 手机验证码登录提示 */
+.sms-login-prompt {
+    text-align: center;
+    margin-top: 1.2rem;
+    color: #007f73;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: var(--transition);
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    display: inline-block;
+    width: 100%;
+}
+
+.sms-login-prompt:hover {
+    color: #005a50;
+    background: linear-gradient(135deg, rgba(0, 127, 115, 0.1) 0%, rgba(0, 150, 136, 0.1) 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(0, 127, 115, 0.2);
+}
+#smsLoginForm .form-group {
+    margin-bottom: 1.2rem;
+}
+
+#smsLoginError {
+    display: block;
+    color: #dc3545;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.password-login-prompt {
+    color: #007f73;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: var(--transition);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    display: inline-block;
+    width: 100%;
+}
+
+.password-login-prompt:hover {
+    color: #005a50;
+    background: linear-gradient(135deg, rgba(0, 127, 115, 0.1) 0%, rgba(0, 150, 136, 0.1) 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(0, 127, 115, 0.2);
+}
+
+/* 响应式设计 */
+@media (max-width: 992px) {
+    .login-container {
+        flex-direction: column;
+        max-width: 100%;
+    }
+    
+    .brand-side {
+        padding: 3rem 1.5rem;
+        min-height: 400px;
+        min-width: 100%;
+    }
+    
+    .form-side {
+        padding: 3rem 1.5rem;
+        min-width: 100%;
+    }
+    
+    .brand-title {
+        font-size: 2rem;
+    }
+    
+    .brand-logo img {
+        max-width: 120px;
+    }
+    
+    .brand-illustration {
+        width: 300px;
+        height: 225px;
+    }
+}
+
+@media (max-width: 576px) {
+    .brand-side {
+        padding: 2rem 1rem;
+    }
+    
+    .form-side {
+        padding: 2rem 1rem;
+    }
+    
+    .form-header h2 {
+        font-size: 1.8rem;
+    }
+    
+    .login-tips {
+        padding: 0.75rem;
+    }
+    
+    .brand-illustration {
+        width: 250px;
+        height: 188px;
+    }
+}
+
+/* 忘记密码模态框样式 - 确保在登录容器之上显示 */
+#forgotPasswordModal {
+    z-index: 1055 !important;
+}
+
+#forgotPasswordModal .modal-dialog {
+    margin: 1.75rem auto;
+    z-index: 1055 !important;
+}
+
+#forgotPasswordModal .modal-content {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+#forgotPasswordModal .modal-header {
+    border-bottom: 1px solid #e9ecef;
+    padding: 1.25rem 1.5rem;
+}
+
+#forgotPasswordModal .modal-title {
+    color: #333;
+    font-weight: 600;
+    font-size: 1.25rem;
+}
+
+#forgotPasswordModal .modal-body {
+    padding: 1.5rem;
+}
+
+#forgotPasswordModal .modal-footer {
+    border-top: 1px solid #e9ecef;
+    padding: 1rem 1.5rem;
+}
+
+#forgotPasswordModal .form-group {
+    margin-bottom: 1.2rem;
+}
+
+#forgotPasswordModal .form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #333;
+    font-size: 1rem;
+}
+
+#forgotPasswordModal .form-control {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    background-color: white;
+}
+
+#forgotPasswordModal .form-control:focus {
+    outline: none;
+    border-color: #007f73;
+    box-shadow: 0 0 0 3px rgba(0, 127, 115, 0.1);
+}
+
+/* 确保模态框背景遮罩正确显示 */
+.modal-backdrop.show {
+    z-index: 1050 !important;
+    opacity: 0.5;
+}

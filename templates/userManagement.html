@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户管理 - 管理员控制台</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- 样式文件 -->
+    <link href="{{ url_for('static', filename='css/variables.css') }}?v=1.0" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/global.css') }}?v=1.0" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/admin.css') }}?v=2.0" rel="stylesheet">
+</head>
+<body class="admin-body">
+    <!-- 侧边栏导航 -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <img src="{{ url_for('static', filename='img/logo.png') }}" alt="校园书递" class="sidebar-logo">
+            <span class="sidebar-title">校园书递</span>
+        </div>
+        <nav class="sidebar-nav">
+            <ul class="nav-list">
+                <li class="nav-item">
+                    <a href="{{ url_for('admin_page') }}" class="nav-link">
+                        <i class="fa fa-dashboard"></i>
+                        <span>控制台</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fa fa-book"></i>
+                        <span>书籍管理</span>
+                    </a>
+                </li>
+                <li class="nav-item active">
+                    <a href="{{ url_for('admin_user_management_page') }}" class="nav-link">
+                        <i class="fa fa-users"></i>
+                        <span>用户管理</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('admin_analytics_page') }}" class="nav-link">
+                        <i class="fa fa-bar-chart"></i>
+                        <span>数据分析</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('admin_settings_page') }}" class="nav-link">
+                        <i class="fa fa-cog"></i>
+                        <span>系统设置</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </aside>
+
+    <!-- 顶部导航栏 -->
+    <header class="top-navbar">
+        <div class="header-left">
+            <button class="sidebar-toggle">
+                <i class="fa fa-bars"></i>
+            </button>
+            <div class="brand-container">
+                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="校园书递" class="logo-btn">
+                <span class="page-title">用户管理</span>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="user-profile">
+                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="管理员头像" class="avatar">
+                <span class="username">{{ username }}</span>
+                <i class="fa fa-chevron-down"></i>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主内容区域 -->
+    <main class="main-content">
+        <div class="container-fluid">
+            <!-- 页面标题和操作按钮 -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="mb-1">用户管理</h2>
+                    <p class="text-muted mb-0">管理系统用户信息</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="{{ url_for('admin_page') }}" class="btn btn-outline-secondary">
+                        <i class="fa fa-arrow-left me-2"></i>返回控制台
+                    </a>
+                    <button class="btn btn-primary" id="addUserBtn" onclick="openAddUserModal()">
+                        <i class="fa fa-user-plus me-2"></i>添加用户
+                    </button>
+                </div>
+            </div>
+
+            <!-- 搜索筛选区域 -->
+            <div class="search-filter">
+                <div class="filter-row">
+                    <div class="filter-group">
+                        <select id="userRoleFilter" class="filter-select">
+                            <option value="all">全部角色</option>
+                            <option value="admin">管理员</option>
+                            <option value="user">普通用户</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <select id="registerTimeFilter" class="filter-select">
+                            <option value="all">全部时间</option>
+                            <option value="today">今日</option>
+                            <option value="week">本周</option>
+                            <option value="month">本月</option>
+                            <option value="quarter">本季度</option>
+                        </select>
+                    </div>
+                    <div class="search-input-group">
+                        <input type="text" id="userSearchInput" placeholder="输入用户名或邮箱" class="search-input">
+                        <button class="search-btn" id="searchBtn" onclick="searchUsers()">
+                            <i class="fa fa-search"></i> 搜索
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 用户列表 -->
+            <div class="content-area">
+                <div class="data-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>用户ID</th>
+                                <th>用户名</th>
+                                <th>邮箱</th>
+                                <th>手机号</th>
+                                <th>角色</th>
+                                <th>注册时间</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="user-table-body">
+                            <!-- 用户数据将通过JavaScript动态加载 -->
+                        </tbody>
+                    </table>
+                </div>
+                <div id="user-empty-state" class="empty-state">
+                    <div class="stat-card empty-state-card">
+                        <div class="stat-icon primary">
+                            <i class="fa fa-user-minus"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>未找到符合条件的用户</h3>
+                            <p>尝试调整筛选条件或搜索其他关键词</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+        
+        <!-- 分页控制（已改为显示所有用户，通过滚动条查看） -->
+        <div class="pagination-container">
+            <div class="pagination-info">
+                <span id="pagination-info-text">共 0 条用户信息（使用滚动条查看全部）</span>
+            </div>
+            <div class="pagination-controls" style="display: none;">
+                <select id="page-size-select" onchange="loadUsers(1)">
+                    <option value="5">5条/页</option>
+                    <option value="10">10条/页</option>
+                    <option value="20">20条/页</option>
+                    <option value="50">50条/页</option>
+                </select>
+                <div class="pagination-buttons">
+                    <button class="btn btn-sm btn-outline-secondary" id="prev-page-btn" onclick="changePage(-1)" disabled>
+                        <i class="fas fa-chevron-left"></i> 上一页
+                    </button>
+                    <span id="page-indicator">第 1 页</span>
+                    <button class="btn btn-sm btn-outline-secondary" id="next-page-btn" onclick="changePage(1)" disabled>
+                        下一页 <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 批量操作 -->
+        <div class="batch-operations" style="display: none;">
+            <button class="btn btn-danger" id="batch-delete-btn" onclick="confirmBatchDelete()">
+                <i class="fas fa-trash-alt"></i> 批量删除
+            </button>
+        </div>
+        </div>
+    </main>
+
+    <!-- 添加用户模态框 -->
+    <div class="modal" id="add-user-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">添加用户</h3>
+                <button class="close-modal" onclick="closeModal('add-user-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="add-user-form">
+                    <div class="form-group">
+                        <label for="username">用户名 <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="username" name="username" required placeholder="请输入用户名">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">邮箱</label>
+                        <input type="email" class="form-control" id="email" name="email" placeholder="请输入邮箱（可选）">
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">手机号</label>
+                        <input type="tel" class="form-control" id="phone" name="phone" placeholder="请输入手机号（可选）">
+                    </div>
+                    <div class="form-group">
+                        <label for="password">密码 <span class="text-danger">*</span></label>
+                        <input type="password" class="form-control" id="password" name="password" required placeholder="请输入密码">
+                    </div>
+                    <div class="form-group">
+                        <label for="role">角色</label>
+                        <select class="form-control" id="role" name="role">
+                            <option value="user">普通用户</option>
+                            <option value="admin">管理员</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('add-user-modal')">取消</button>
+                <button class="btn btn-primary" onclick="submitAddUserForm()">添加</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑用户模态框 -->
+        <div id="edit-user-modal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>编辑用户</h2>
+                    <button class="close-btn" onclick="closeModal('edit-user-modal')">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form id="edit-user-form">
+                        <input type="hidden" id="edit-user-id" name="id">
+                        <div class="form-group">
+                            <label for="edit-username">用户名</label>
+                            <input type="text" id="edit-username" name="username" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-email">邮箱</label>
+                            <input type="email" id="edit-email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-password">密码（留空表示不修改）</label>
+                            <input type="password" id="edit-password" name="password">
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-role">角色</label>
+                            <select id="edit-role" name="role">
+                                <option value="user">普通用户</option>
+                                <option value="admin">管理员</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-status">状态</label>
+                            <select id="edit-status" name="status">
+                                <option value="active">活跃</option>
+                                <option value="inactive">非活跃</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" onclick="closeModal('edit-user-modal')">取消</button>
+                    <button class="btn btn-primary" onclick="submitEditUserForm()">保存</button>
+                </div>
+            </div>
+        </div>
+
+    <!-- 删除用户确认模态框 -->
+    <div id="delete-user-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>确认删除</h2>
+                <button class="close-btn" onclick="closeModal('delete-user-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>确定要删除该用户吗？此操作不可撤销。</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('delete-user-modal')">取消</button>
+                <button class="btn btn-danger" id="delete-user-confirm-btn" onclick="deleteUser()">删除</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 批量删除确认模态框 -->
+    <div id="batch-delete-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>确认批量删除</h2>
+                <button class="close-btn" onclick="closeModal('batch-delete-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="batch-delete-count">确定要删除选中的用户吗？此操作不可撤销。</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('batch-delete-modal')">取消</button>
+                <button class="btn btn-danger" id="batch-delete-confirm-btn" onclick="batchDeleteUsers()">批量删除</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 消息提示 -->
+    <div id="notification" class="notification" style="display: none;">
+        <div class="notification-content">
+            <span id="notification-message"></span>
+            <button class="close-btn" onclick="hideNotification()">&times;</button>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // HTML转义函数
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // 当前选中的用户ID
+        let currentUserId = null;
+        // 当前页码和每页条数
+        let currentPage = 1;
+        let pageSize = 10;
+        // 总用户数
+        let totalUsers = 0;
+        // 选中的用户ID数组
+        let selectedUserIds = [];
+        
+        // 模拟用户数据（用于演示）
+        let mockUsers = [];
+
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', function() {
+            // 加载用户数据
+            loadUsers();
+        });
+
+        // 加载用户数据
+        async function loadUsers(page = 1) {
+            currentPage = page || 1;
+            const pageSizeSelect = document.getElementById('page-size-select');
+            pageSize = pageSizeSelect ? parseInt(pageSizeSelect.value) || 10 : 10;
+            
+            try {
+                // 从API获取用户数据
+                const response = await fetch('/api/admin/users', {
+                    credentials: 'include'
+                });
+                
+                if (!response.ok) {
+                    throw new Error('获取用户数据失败');
+                }
+                
+                const result = await response.json();
+                const allUsers = result.users || [];
+                
+                console.log('获取到的用户数据:', allUsers); // 调试日志
+                
+                // 转换数据格式以匹配现有代码
+                mockUsers = allUsers.map(user => ({
+                    id: user.id,
+                    username: user.username,
+                    email: user.email || '',
+                    phone: user.phone || '',
+                    role: user.is_admin ? 'admin' : 'user',
+                    status: user.status || 'active',
+                    created_at: user.created_at || user.register_time || ''
+                }));
+                
+                console.log('转换后的用户数据:', mockUsers); // 调试日志
+                
+                // 按创建时间倒序排列，新用户显示在前面
+                mockUsers.sort((a, b) => {
+                    const dateA = new Date(a.created_at || 0);
+                    const dateB = new Date(b.created_at || 0);
+                    return dateB - dateA; // 倒序：最新的在前
+                });
+                
+                // 应用筛选
+                const filteredUsers = applyFilters(mockUsers);
+                
+                console.log('筛选后的用户数据:', filteredUsers); // 调试日志
+                
+                // 更新总数
+                totalUsers = filteredUsers.length;
+                
+                // 不再分页，显示所有用户，通过滚动条查看
+                // 渲染表格（显示所有筛选后的用户）
+                renderUserTable(filteredUsers);
+                
+                // 更新分页信息（显示总数）
+                updatePaginationInfo();
+            } catch (error) {
+                console.error('加载用户数据失败:', error);
+                alert('加载用户数据失败，请稍后重试');
+            }
+        }
+
+        // 搜索用户
+        function searchUsers() {
+            currentPage = 1; // 搜索时重置到第一页
+            loadUsers(1);
+        }
+        
+        // 应用筛选条件
+        function applyFilters(users) {
+            const role = document.getElementById('userRoleFilter').value;
+            const timeRange = document.getElementById('registerTimeFilter').value;
+            const search = document.getElementById('userSearchInput').value.trim().toLowerCase();
+            
+            return users.filter(user => {
+                // 角色筛选
+                if (role !== 'all' && user.role !== role) {
+                    return false;
+                }
+                
+                // 时间筛选
+                if (timeRange !== 'all') {
+                    const userDate = new Date(user.created_at);
+                    const now = new Date();
+                    let startTime;
+                    
+                    switch (timeRange) {
+                        case 'today':
+                            startTime = new Date(now.setHours(0, 0, 0, 0));
+                            break;
+                        case 'week':
+                            startTime = new Date(now);
+                            startTime.setDate(now.getDate() - now.getDay());
+                            startTime.setHours(0, 0, 0, 0);
+                            break;
+                        case 'month':
+                            startTime = new Date(now.getFullYear(), now.getMonth(), 1);
+                            break;
+                        case 'quarter':
+                            const quarter = Math.floor(now.getMonth() / 3);
+                            startTime = new Date(now.getFullYear(), quarter * 3, 1);
+                            break;
+                    }
+                    
+                    if (userDate < startTime) {
+                        return false;
+                    }
+                }
+                
+                // 搜索筛选
+                if (search) {
+                    const usernameMatch = user.username.toLowerCase().includes(search);
+                    const emailMatch = user.email ? user.email.toLowerCase().includes(search) : false;
+                    const idMatch = user.id.toString().includes(search);
+                    
+                    if (!usernameMatch && !emailMatch && !idMatch) {
+                        return false;
+                    }
+                }
+                
+                return true;
+            });
+        }
+
+        // 渲染用户表格
+        function renderUserTable(users) {
+            const userTableBody = document.getElementById('user-table-body');
+            const dataTable = document.querySelector('.data-table');
+            const userEmptyState = document.getElementById('user-empty-state');
+
+            if (!userTableBody) {
+                console.error('找不到user-table-body元素');
+                return;
+            }
+
+            // 确保users是数组类型
+            const userList = Array.isArray(users) ? users : [];
+            
+            console.log('准备渲染用户列表，数量:', userList.length);
+
+            if (userList.length === 0) {
+                // 显示空状态
+                if (dataTable) dataTable.style.display = 'none';
+                if (userEmptyState) {
+                    userEmptyState.classList.add('active');
+                    userEmptyState.style.display = 'block';
+                }
+                return;
+            }
+
+            // 显示表格，隐藏空状态
+            if (dataTable) dataTable.style.display = 'block';
+            if (userEmptyState) {
+                userEmptyState.classList.remove('active');
+                userEmptyState.style.display = 'none';
+            }
+            
+            // 渲染表格内容
+            let tbodyHTML = '';
+            userList.forEach(user => {
+                // 确保用户有status字段
+                if (!user.status) {
+                    user.status = 'active'; // 默认状态
+                }
+                
+                // 确保用户有email字段
+                if (!user.email) {
+                    user.email = `${user.username.toLowerCase().replace(/\s+/g, '')}@example.com`;
+                }
+                
+                const statusBadge = user.status === 'active' 
+                    ? '<span class="badge bg-success">活跃</span>' 
+                    : '<span class="badge bg-secondary">非活跃</span>';
+                
+                const roleBadge = user.role === 'admin' 
+                    ? '<span class="badge bg-primary">管理员</span>' 
+                    : '<span class="badge bg-secondary">普通用户</span>';
+                
+                tbodyHTML += `
+                    <tr>
+                        <td>${user.id}</td>
+                        <td><strong>${escapeHtml(user.username || '')}</strong></td>
+                        <td>${escapeHtml(user.email || '')}</td>
+                        <td>${escapeHtml(user.phone || '-')}</td>
+                        <td>${roleBadge}</td>
+                        <td>${formatDate(user.created_at || '')}</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="action-btn-small view" title="查看" onclick="viewUser('${user.id}')">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="action-btn-small edit" title="编辑" onclick="editUser('${user.id}')">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="action-btn-small delete" title="删除" onclick="confirmDeleteUser('${user.id}')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            userTableBody.innerHTML = tbodyHTML;
+            
+            // 隐藏批量操作按钮
+            document.querySelector('.batch-operations').style.display = 'none';
+        }
+        
+        // 处理全选复选框变化
+        function handleSelectAllChange() {
+            const isChecked = document.getElementById('select-all-checkbox').checked;
+            const checkboxes = document.querySelectorAll('.user-checkbox');
+            
+            selectedUserIds = [];
+            
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = isChecked;
+                const userId = parseInt(checkbox.getAttribute('data-id'));
+                if (isChecked) {
+                    selectedUserIds.push(userId);
+                }
+            });
+            
+            // 更新批量操作按钮显示
+            document.querySelector('.batch-operations').style.display = isChecked ? 'block' : 'none';
+        }
+        
+        // 处理单个用户复选框变化
+        function handleUserCheckboxChange(userId) {
+            const checkbox = document.querySelector(`.user-checkbox[data-id="${userId}"]`);
+            if (checkbox.checked) {
+                selectedUserIds.push(userId);
+            } else {
+                selectedUserIds = selectedUserIds.filter(id => id !== userId);
+            }
+            
+            // 更新全选复选框状态
+            const allCheckboxes = document.querySelectorAll('.user-checkbox');
+            const checkedCount = document.querySelectorAll('.user-checkbox:checked').length;
+            document.getElementById('select-all-checkbox').checked = allCheckboxes.length > 0 && checkedCount === allCheckboxes.length;
+            
+            // 更新批量操作按钮显示
+            document.querySelector('.batch-operations').style.display = selectedUserIds.length > 0 ? 'block' : 'none';
+        }
+        
+        // 更新分页信息（现在显示所有用户，不再分页）
+        function updatePaginationInfo() {
+            // 显示所有用户信息，提示使用滚动条查看
+            const paginationInfoText = document.getElementById('pagination-info-text');
+            if (paginationInfoText) {
+                paginationInfoText.textContent = `共 ${totalUsers} 条用户信息（使用滚动条查看全部）`;
+            }
+            
+            // 隐藏分页控件，因为现在显示所有数据
+            const paginationContainer = document.querySelector('.pagination-container');
+            if (paginationContainer) {
+                // 只隐藏分页按钮和选择器，保留信息文本
+                const paginationControls = paginationContainer.querySelector('.pagination-controls');
+                if (paginationControls) {
+                    paginationControls.style.display = 'none';
+                }
+            }
+        }
+        
+        // 切换页面
+        function changePage(direction) {
+            const totalPages = Math.ceil(totalUsers / pageSize);
+            let newPage = currentPage + direction;
+            
+            if (newPage >= 1 && newPage <= totalPages) {
+                loadUsers(newPage);
+            }
+        }
+        
+        // 确认批量删除
+        function confirmBatchDelete() {
+            if (selectedUserIds.length === 0) {
+                showNotification('请先选择要删除的用户', 'error');
+                return;
+            }
+            
+            document.getElementById('batch-delete-count').textContent = 
+                `确定要删除选中的 ${selectedUserIds.length} 个用户吗？此操作不可撤销。`;
+            
+            document.getElementById('batch-delete-modal').style.display = 'flex';
+        }
+        
+        // 批量删除用户
+        function batchDeleteUsers() {
+            // 在实际应用中，这里应该调用API进行批量删除
+            // 这里模拟删除操作
+            
+            // 从模拟数据中删除选中的用户
+            const remainingUsers = mockUsers.filter(user => !selectedUserIds.includes(user.id));
+            mockUsers.length = 0;
+            remainingUsers.forEach(user => mockUsers.push(user));
+            // 保存更新后的用户数据
+            saveUsers(mockUsers);
+            
+            // 关闭模态框
+            closeModal('batch-delete-modal');
+            
+            // 重新加载数据
+            loadUsers(1);
+            
+            // 显示成功消息
+            showNotification(`成功删除 ${selectedUserIds.length} 个用户`, 'success');
+            
+            // 清空选中状态
+            selectedUserIds = [];
+        }
+
+        // 打开添加用户模态框
+        function openAddUserModal() {
+            const modal = document.getElementById('add-user-modal');
+            const form = document.getElementById('add-user-form');
+            if (modal) {
+                // 重置表单
+                if (form) form.reset();
+                // 显示模态框（使用admin.css的样式）
+                modal.classList.add('active');
+            }
+        }
+        
+        // 关闭模态框
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.remove('active');
+                // 同时清除内联样式，确保模态框能正确关闭
+                modal.style.display = 'none';
+            }
+        }
+        
+        // 点击模态框外部关闭
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        this.classList.remove('active');
+                    }
+                });
+            });
+        });
+
+        // 提交添加用户表单
+        async function submitAddUserForm() {
+            const form = document.getElementById('add-user-form');
+            if (!form) return;
+
+            // 验证表单
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            const username = document.getElementById('username').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const password = document.getElementById('password').value;
+            const role = document.getElementById('role').value;
+            
+            // 验证必填字段
+            if (!username || !password) {
+                alert('请填写用户名和密码');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/admin/users', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        username: username,
+                        email: email,
+                        phone: phone,
+                        password: password,
+                        role: role
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    // 关闭模态框
+                    closeModal('add-user-modal');
+                    
+                    // 重置表单
+                    form.reset();
+                    
+                    // 重置筛选条件，确保新用户能显示
+                    const roleFilter = document.getElementById('userRoleFilter');
+                    const timeFilter = document.getElementById('registerTimeFilter');
+                    const searchInput = document.getElementById('userSearchInput');
+                    if (roleFilter) roleFilter.value = 'all';
+                    if (timeFilter) timeFilter.value = 'all';
+                    if (searchInput) searchInput.value = '';
+                    
+                    // 重置到第一页
+                    currentPage = 1;
+                    
+                    // 添加小延迟确保服务器数据已更新
+                    await new Promise(resolve => setTimeout(resolve, 300));
+                    
+                    // 重新加载用户列表
+                    await loadUsers(1);
+                    
+                    // 滚动到表格顶部，确保新用户可见
+                    const dataTable = document.querySelector('.data-table');
+                    if (dataTable) {
+                        dataTable.scrollTop = 0;
+                    }
+                    const contentArea = document.querySelector('.content-area');
+                    if (contentArea) {
+                        contentArea.scrollTop = 0;
+                    }
+                    
+                    // 显示成功消息
+                    alert('用户添加成功！新用户已显示在列表顶部。');
+                } else {
+                    alert('添加失败：' + (result.message || '未知错误'));
+                }
+            } catch (error) {
+                console.error('添加用户失败:', error);
+                alert('添加用户时发生错误，请稍后重试');
+            }
+        }
+
+        // 查看用户详情
+        async function viewUser(id) {
+            try {
+                const response = await fetch('/api/admin/users', {
+                    credentials: 'include'
+                });
+                
+                if (!response.ok) {
+                    throw new Error('获取用户数据失败');
+                }
+                
+                const result = await response.json();
+                const user = result.users.find(u => u.id === id);
+                
+                if (!user) {
+                    alert('用户不存在');
+                    return;
+                }
+                
+                alert(`用户详情：\nID: ${user.id}\n用户名: ${user.username}\n邮箱: ${user.email || '未设置'}\n手机: ${user.phone || '未设置'}\n角色: ${user.is_admin ? '管理员' : '普通用户'}\n注册时间: ${user.created_at || '未知'}`);
+            } catch (error) {
+                console.error('查看用户失败:', error);
+                alert('获取用户详情失败，请稍后重试');
+            }
+        }
+        
+        // 编辑用户
+        async function editUser(userId) {
+            currentUserId = userId;
+            
+            try {
+                const response = await fetch('/api/admin/users', {
+                    credentials: 'include'
+                });
+                
+                if (!response.ok) {
+                    throw new Error('获取用户数据失败');
+                }
+                
+                const result = await response.json();
+                const user = result.users.find(u => u.id === userId);
+                
+                if (!user) {
+                    alert('用户不存在');
+                    return;
+                }
+                
+                document.getElementById('edit-user-id').value = user.id;
+                document.getElementById('edit-username').value = user.username;
+                document.getElementById('edit-email').value = user.email || '';
+                document.getElementById('edit-role').value = user.is_admin ? 'admin' : 'user';
+                document.getElementById('edit-status').value = 'active';
+                
+                // 显示编辑模态框（使用CSS类而不是内联样式，保持一致性）
+                const editModal = document.getElementById('edit-user-modal');
+                editModal.style.display = ''; // 清除内联样式
+                editModal.classList.add('active');
+            } catch (error) {
+                console.error('获取用户信息失败:', error);
+                alert('获取用户信息失败，请稍后重试');
+            }
+        }
+
+        // 提交编辑用户表单
+        async function submitEditUserForm() {
+            const form = document.getElementById('edit-user-form');
+            if (!form) return;
+
+            // 验证表单
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            const formData = new FormData(form);
+            const userData = Object.fromEntries(formData.entries());
+            const userId = userData.id;
+
+            // 如果密码为空，删除密码字段
+            if (!userData.password || userData.password.trim() === '') {
+                delete userData.password;
+            }
+
+            // 准备提交的数据
+            const updateData = {
+                username: userData.username.trim(),
+                email: userData.email.trim(),
+                role: userData.role
+            };
+            
+            // 如果提供了密码，则包含密码
+            if (userData.password) {
+                updateData.password = userData.password;
+            }
+
+            try {
+                const response = await fetch(`/api/admin/users/${userId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify(updateData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    // 关闭模态框
+                    closeModal('edit-user-modal');
+                    
+                    // 重置表单
+                    form.reset();
+                    
+                    // 重新加载用户列表
+                    await loadUsers(currentPage);
+                    
+                    // 显示成功消息
+                    showNotification('用户更新成功', 'success');
+                } else {
+                    showNotification('更新失败：' + (result.message || '未知错误'), 'error');
+                }
+            } catch (error) {
+                console.error('更新用户失败:', error);
+                showNotification('更新用户时发生错误，请稍后重试', 'error');
+            }
+        }
+
+        // 确认删除用户
+        function confirmDeleteUser(userId) {
+            currentUserId = userId;
+            const deleteModal = document.getElementById('delete-user-modal');
+            deleteModal.style.display = ''; // 清除内联样式
+            deleteModal.classList.add('active');
+        }
+
+        // 删除用户
+        async function deleteUser() {
+            if (!currentUserId) {
+                showNotification('删除失败：未选择用户', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/admin/users/${currentUserId}`, {
+                    method: 'DELETE',
+                    credentials: 'include'
+                });
+                
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    // 关闭模态框
+                    closeModal('delete-user-modal');
+                    
+                    // 重新计算总页数
+                    const totalPages = Math.ceil((totalUsers - 1) / pageSize);
+                    
+                    // 如果当前页没有数据了，回到上一页
+                    if (currentPage > totalPages && totalPages > 0) {
+                        currentPage = totalPages;
+                    }
+                    
+                    // 重新加载数据
+                    await loadUsers(currentPage);
+                    
+                    // 显示成功消息
+                    showNotification('用户删除成功', 'success');
+                } else {
+                    showNotification('删除失败：' + (result.message || '未知错误'), 'error');
+                }
+            } catch (error) {
+                console.error('删除用户失败:', error);
+                showNotification('删除用户时发生错误，请稍后重试', 'error');
+            }
+        }
+
+
+        // 显示通知
+        function showNotification(message, type = 'info') {
+            const notification = document.getElementById('notification');
+            const notificationMessage = document.getElementById('notification-message');
+            
+            if (notification && notificationMessage) {
+                notificationMessage.textContent = message;
+                
+                // 设置通知类型样式
+                notification.className = 'notification';
+                // 使用Bootstrap样式
+                notification.classList.add(
+                    'alert',
+                    type === 'success' ? 'alert-success' :
+                    type === 'error' ? 'alert-danger' : 'alert-info'
+                );
+                
+                notification.style.display = 'block';
+                
+                // 添加淡入效果
+                notification.classList.add('show');
+                
+                // 3秒后自动隐藏
+                setTimeout(hideNotification, 3000);
+            }
+        }
+        
+        // 隐藏通知
+        function hideNotification() {
+            const notification = document.getElementById('notification');
+            if (notification) {
+                // 添加淡出效果
+                notification.classList.remove('show');
+                
+                // 延迟后隐藏
+                setTimeout(() => {
+                    notification.style.display = 'none';
+                }, 300);
+            }
+        }
+
+        // 隐藏通知
+        function hideNotification() {
+            const notification = document.getElementById('notification');
+            if (notification) {
+                notification.style.display = 'none';
+            }
+        }
+
+        // 格式化日期
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleString('zh-CN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // 保存用户数据到本地存储
+        function saveUsers(users) {
+            try {
+                // 保存到localStorage
+                localStorage.setItem('users', JSON.stringify(users));
+                
+                // 尝试将数据保存到文件系统（如果支持）
+                if (typeof window.fileStorage !== 'undefined' && typeof window.fileStorage.saveData === 'function') {
+                    window.fileStorage.saveData('users', users)
+                        .then(() => {
+                            console.log('用户数据成功保存到fileStorage');
+                            // 发送自定义事件通知其他页面数据已更新
+                            notifyDataUpdate();
+                        })
+                        .catch(err => {
+                            console.error('将数据保存到fileStorage失败:', err);
+                        });
+                } else {
+                    // 即使没有fileStorage，也发送通知
+                    notifyDataUpdate();
+                }
+                
+                return true;
+            } catch (error) {
+                console.error('保存用户数据失败:', error);
+                return false;
+            }
+        }
+        
+        // 发送数据更新通知
+        function notifyDataUpdate() {
+            // 创建并派发自定义事件
+            const dataUpdateEvent = new CustomEvent('userDataUpdated', {
+                detail: {
+                    timestamp: new Date().getTime()
+                },
+                bubbles: true,
+                cancelable: true
+            });
+            
+            // 派发事件
+            window.dispatchEvent(dataUpdateEvent);
+            console.log('用户数据更新事件已发送');
+        }
+    </script>
+    
+    <!-- 引入JavaScript库 -->
+    <!-- 先引入jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- 引入全局JavaScript文件 -->
+    <script src="{{ url_for('static', filename='js/global.js') }}"></script>
+    
+</body>
+</html>

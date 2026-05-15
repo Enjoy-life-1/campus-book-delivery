@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>销售统计 - 管理员控制台</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- 样式文件 -->
+    <link href="{{ url_for('static', filename='css/variables.css') }}?v=1.0" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/global.css') }}?v=1.0" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/admin.css') }}?v=2.0" rel="stylesheet">
+</head>
+<body class="admin-body">
+    <!-- 侧边栏导航 -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <img src="{{ url_for('static', filename='img/logo.png') }}" alt="校园书递" class="sidebar-logo">
+            <span class="sidebar-title">校园书递</span>
+        </div>
+        <nav class="sidebar-nav">
+            <ul class="nav-list">
+                <li class="nav-item">
+                    <a href="{{ url_for('admin_page') }}" class="nav-link">
+                        <i class="fa fa-dashboard"></i>
+                        <span>控制台</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('admin_book_management_page') }}" class="nav-link">
+                        <i class="fa fa-book"></i>
+                        <span>书籍管理</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('admin_user_management_page') }}" class="nav-link">
+                        <i class="fa fa-users"></i>
+                        <span>用户管理</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('admin_analytics_page') }}" class="nav-link">
+                        <i class="fa fa-bar-chart"></i>
+                        <span>数据分析</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('admin_settings_page') }}" class="nav-link">
+                        <i class="fa fa-cog"></i>
+                        <span>系统设置</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </aside>
+
+    <!-- 顶部导航栏 -->
+    <header class="top-navbar">
+        <div class="header-left">
+            <button class="sidebar-toggle">
+                <i class="fa fa-bars"></i>
+            </button>
+            <div class="brand-container">
+                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="校园书递" class="logo-btn">
+                <span class="page-title">销售统计</span>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="user-profile">
+                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="管理员头像" class="avatar">
+                <span class="username">{{ username }}</span>
+                <i class="fa fa-chevron-down"></i>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主内容区域 -->
+    <main class="main-content">
+        <div class="container-fluid">
+            <!-- 页面标题和操作按钮 -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="mb-1">销售统计</h2>
+                    <p class="text-muted mb-0">查看订单和销售数据</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="{{ url_for('admin_page') }}" class="btn btn-outline-secondary">
+                        <i class="fa fa-arrow-left me-2"></i>返回控制台
+                    </a>
+                </div>
+            </div>
+
+            <!-- 统计信息卡片 -->
+            <div class="stats-cards mb-4">
+                <div class="stat-card">
+                    <div class="stat-icon primary">
+                        <i class="fa fa-shopping-cart"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="totalOrders">0</h3>
+                        <p>订单总数</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon success">
+                        <i class="fa fa-yen-sign"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="totalRevenue">¥0</h3>
+                        <p>总销售额</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon warning">
+                        <i class="fa fa-calendar-alt"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="monthlySales">0</h3>
+                        <p>本月销量</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon danger">
+                        <i class="fa fa-check-circle"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="completedOrders">0</h3>
+                        <p>已完成订单</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 图表区域 -->
+            <div class="row mb-4">
+                <div class="col-lg-6">
+                    <div class="stat-card">
+                        <h4 class="mb-3">月度销售趋势</h4>
+                        <canvas id="salesChart"></canvas>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="stat-card">
+                        <h4 class="mb-3">订单状态分布</h4>
+                        <canvas id="orderStatusChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 筛选区域 -->
+            <div class="search-filter mb-4">
+                <div class="filter-row">
+                    <div class="filter-group">
+                        <select id="statusFilter" class="filter-select">
+                            <option value="all">全部状态</option>
+                            <option value="pending">待处理</option>
+                            <option value="completed">已完成</option>
+                            <option value="cancelled">已取消</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <select id="timeFilter" class="filter-select">
+                            <option value="all">全部时间</option>
+                            <option value="today">今日</option>
+                            <option value="week">本周</option>
+                            <option value="month" selected>本月</option>
+                        </select>
+                    </div>
+                    <div class="search-input-group">
+                        <input type="text" id="orderSearchInput" placeholder="输入订单ID、买家或卖家" class="search-input">
+                        <button class="search-btn" onclick="searchOrders()">
+                            <i class="fa fa-search"></i> 搜索
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 订单列表 -->
+            <div class="content-area">
+                <div class="data-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>订单ID</th>
+                                <th>书籍名称</th>
+                                <th>买家</th>
+                                <th>卖家</th>
+                                <th>价格</th>
+                                <th>状态</th>
+                                <th>创建时间</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="orders-table-body">
+                            <!-- 订单数据将通过JavaScript动态加载 -->
+                        </tbody>
+                    </table>
+                </div>
+                <div id="orders-empty-state" class="empty-state">
+                    <div class="stat-card empty-state-card">
+                        <div class="stat-icon primary">
+                            <i class="fa fa-shopping-cart"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3>未找到符合条件的订单</h3>
+                            <p>尝试调整筛选条件或搜索其他关键词</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 分页控制 -->
+            <div class="pagination-container mt-4">
+                <div class="pagination-info">
+                    <span id="pagination-info-text">显示 1-0 条，共 0 条</span>
+                </div>
+                <div class="pagination-controls">
+                    <select id="page-size-select" onchange="loadOrders(1)">
+                        <option value="10">10条/页</option>
+                        <option value="20">20条/页</option>
+                        <option value="50">50条/页</option>
+                    </select>
+                    <div class="pagination-buttons">
+                        <button class="btn btn-sm btn-outline-secondary" id="prev-page-btn" onclick="changePage(-1)" disabled>
+                            <i class="fas fa-chevron-left"></i> 上一页
+                        </button>
+                        <span id="page-indicator">第 1 页</span>
+                        <button class="btn btn-sm btn-outline-secondary" id="next-page-btn" onclick="changePage(1)" disabled>
+                            下一页 <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentPage = 1;
+        let pageSize = 10;
+        let totalOrders = 0;
+        let allOrders = [];
+        let salesChart = null;
+        let orderStatusChart = null;
+
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', function() {
+            loadOrders();
+            initSidebarToggle();
+        });
+
+        // 加载订单数据
+        async function loadOrders(page = 1) {
+            currentPage = page || 1;
+            const pageSizeSelect = document.getElementById('page-size-select');
+            pageSize = pageSizeSelect ? parseInt(pageSizeSelect.value) || 10 : 10;
+            
+            try {
+                const response = await fetch('/api/admin/orders', {
+                    credentials: 'include'
+                });
+                
+                if (!response.ok) {
+                    throw new Error('获取订单数据失败');
+                }
+                
+                const result = await response.json();
+                allOrders = result.orders || [];
+                
+                // 应用筛选
+                const filteredOrders = applyFilters(allOrders);
+                
+                // 更新统计信息
+                updateStats(allOrders);
+                
+                // 更新图表
+                updateCharts(allOrders);
+                
+                // 更新总数
+                totalOrders = filteredOrders.length;
+                
+                // 分页
+                const startIndex = (currentPage - 1) * pageSize;
+                const endIndex = startIndex + pageSize;
+                const paginatedOrders = filteredOrders.slice(startIndex, endIndex);
+                
+                // 渲染表格
+                renderOrdersTable(paginatedOrders);
+                
+                // 更新分页信息
+                updatePaginationInfo();
+            } catch (error) {
+                console.error('加载订单数据失败:', error);
+                alert('加载订单数据失败，请稍后重试');
+            }
+        }
+
+        // 应用筛选条件
+        function applyFilters(orders) {
+            const status = document.getElementById('statusFilter').value;
+            const timeRange = document.getElementById('timeFilter').value;
+            const search = document.getElementById('orderSearchInput').value.trim().toLowerCase();
+            
+            return orders.filter(order => {
+                // 状态筛选
+                if (status !== 'all' && order.status !== status) {
+                    return false;
+                }
+                
+                // 时间筛选
+                if (timeRange !== 'all' && order.created_at) {
+                    const orderDate = new Date(order.created_at);
+                    const now = new Date();
+                    let startTime;
+                    
+                    switch (timeRange) {
+                        case 'today':
+                            startTime = new Date(now.setHours(0, 0, 0, 0));
+                            break;
+                        case 'week':
+                            startTime = new Date(now);
+                            startTime.setDate(now.getDate() - now.getDay());
+                            startTime.setHours(0, 0, 0, 0);
+                            break;
+                        case 'month':
+                            startTime = new Date(now.getFullYear(), now.getMonth(), 1);
+                            break;
+                    }
+                    
+                    if (orderDate < startTime) return false;
+                }
+                
+                // 搜索筛选
+                if (search) {
+                    const idMatch = order.id.toString().includes(search);
+                    const buyerMatch = order.buyer_name ? order.buyer_name.toLowerCase().includes(search) : false;
+                    const sellerMatch = order.seller_name ? order.seller_name.toLowerCase().includes(search) : false;
+                    
+                    if (!idMatch && !buyerMatch && !sellerMatch) return false;
+                }
+                
+                return true;
+            });
+        }
+
+        // 更新统计信息
+        function updateStats(orders) {
+            const total = orders.length;
+            const totalRevenue = orders.reduce((sum, order) => sum + (parseFloat(order.price) || 0), 0);
+            
+            // 计算本月销量
+            const now = new Date();
+            const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+            const monthlyOrders = orders.filter(order => {
+                if (!order.created_at) return false;
+                const orderDate = new Date(order.created_at);
+                return orderDate >= monthStart;
+            });
+            const monthlySales = monthlyOrders.length;
+            
+            // 已完成订单
+            const completed = orders.filter(o => o.status === 'completed').length;
+            
+            document.getElementById('totalOrders').textContent = total;
+            document.getElementById('totalRevenue').textContent = '¥' + totalRevenue.toFixed(2);
+            document.getElementById('monthlySales').textContent = monthlySales;
+            document.getElementById('completedOrders').textContent = completed;
+        }
+
+        // 更新图表
+        function updateCharts(orders) {
+            // 月度销售趋势
+            const monthlyData = getMonthlySalesData(orders);
+            updateSalesChart(monthlyData);
+            
+            // 订单状态分布
+            const statusData = getOrderStatusData(orders);
+            updateOrderStatusChart(statusData);
+        }
+
+        // 获取月度销售数据
+        function getMonthlySalesData(orders) {
+            const months = [];
+            const sales = [];
+            const now = new Date();
+            
+            for (let i = 5; i >= 0; i--) {
+                const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                const monthName = date.toLocaleString('zh-CN', { month: 'short' });
+                months.push(monthName);
+                
+                const monthStart = new Date(date.getFullYear(), date.getMonth(), 1);
+                const monthEnd = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+                
+                const monthOrders = orders.filter(order => {
+                    if (!order.created_at) return false;
+                    const orderDate = new Date(order.created_at);
+                    return orderDate >= monthStart && orderDate <= monthEnd;
+                });
+                
+                sales.push(monthOrders.length);
+            }
+            
+            return { months, sales };
+        }
+
+        // 获取订单状态数据
+        function getOrderStatusData(orders) {
+            const statusCounts = {
+                pending: 0,
+                completed: 0,
+                cancelled: 0
+            };
+            
+            orders.forEach(order => {
+                const status = order.status || 'pending';
+                if (statusCounts.hasOwnProperty(status)) {
+                    statusCounts[status]++;
+                }
+            });
+            
+            return statusCounts;
+        }
+
+        // 更新销售趋势图表
+        function updateSalesChart(data) {
+            const ctx = document.getElementById('salesChart');
+            if (!ctx) return;
+            
+            if (salesChart) {
+                salesChart.destroy();
+            }
+            
+            salesChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.months,
+                    datasets: [{
+                        label: '订单数量',
+                        data: data.sales,
+                        borderColor: '#007f73',
+                        backgroundColor: 'rgba(0, 127, 115, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            display: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // 更新订单状态分布图表
+        function updateOrderStatusChart(data) {
+            const ctx = document.getElementById('orderStatusChart');
+            if (!ctx) return;
+            
+            if (orderStatusChart) {
+                orderStatusChart.destroy();
+            }
+            
+            orderStatusChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['待处理', '已完成', '已取消'],
+                    datasets: [{
+                        data: [data.pending, data.completed, data.cancelled],
+                        backgroundColor: [
+                            '#fbbc05',
+                            '#34a853',
+                            '#ea4335'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        // 渲染订单表格
+        function renderOrdersTable(orders) {
+            const tbody = document.getElementById('orders-table-body');
+            const emptyState = document.getElementById('orders-empty-state');
+            const table = document.querySelector('.data-table');
+            
+            if (!tbody) return;
+            
+            if (orders.length === 0) {
+                tbody.innerHTML = '';
+                if (table) table.style.display = 'none';
+                if (emptyState) {
+                    emptyState.style.display = 'block';
+                    emptyState.classList.add('active');
+                }
+                return;
+            }
+            
+            if (table) table.style.display = 'block';
+            if (emptyState) {
+                emptyState.style.display = 'none';
+                emptyState.classList.remove('active');
+            }
+            
+            let tbodyHTML = '';
+            orders.forEach(order => {
+                const statusBadge = order.status === 'completed' 
+                    ? '<span class="badge bg-success">已完成</span>' 
+                    : order.status === 'cancelled'
+                    ? '<span class="badge bg-danger">已取消</span>'
+                    : '<span class="badge bg-warning">待处理</span>';
+                
+                tbodyHTML += `
+                    <tr>
+                        <td>${order.id}</td>
+                        <td><strong>${escapeHtml(order.book_title || '')}</strong></td>
+                        <td>${escapeHtml(order.buyer_name || '-')}</td>
+                        <td>${escapeHtml(order.seller_name || '-')}</td>
+                        <td>¥${parseFloat(order.price || 0).toFixed(2)}</td>
+                        <td>${statusBadge}</td>
+                        <td>${formatDate(order.created_at || '')}</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="action-btn-small view" title="查看详情" onclick="viewOrder('${order.id}')">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            tbody.innerHTML = tbodyHTML;
+        }
+
+        // 搜索订单
+        function searchOrders() {
+            currentPage = 1;
+            loadOrders(1);
+        }
+
+        // 更新分页信息
+        function updatePaginationInfo() {
+            const totalPages = Math.ceil(totalOrders / pageSize);
+            const startItem = totalOrders > 0 ? (currentPage - 1) * pageSize + 1 : 0;
+            const endItem = Math.min(currentPage * pageSize, totalOrders);
+            
+            document.getElementById('pagination-info-text').textContent = 
+                `显示 ${startItem}-${endItem} 条，共 ${totalOrders} 条`;
+            
+            document.getElementById('page-indicator').textContent = 
+                `第 ${currentPage} 页 / 共 ${totalPages} 页`;
+            
+            document.getElementById('prev-page-btn').disabled = currentPage <= 1;
+            document.getElementById('next-page-btn').disabled = currentPage >= totalPages;
+        }
+
+        // 切换页面
+        function changePage(direction) {
+            const totalPages = Math.ceil(totalOrders / pageSize);
+            let newPage = currentPage + direction;
+            
+            if (newPage >= 1 && newPage <= totalPages) {
+                loadOrders(newPage);
+            }
+        }
+
+        // HTML转义函数
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // 格式化日期
+        function formatDate(dateString) {
+            if (!dateString) return '-';
+            const date = new Date(dateString);
+            return date.toLocaleString('zh-CN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // 查看订单
+        function viewOrder(orderId) {
+            const order = allOrders.find(o => o.id === orderId);
+            if (order) {
+                alert(`订单详情：\n订单ID: ${order.id}\n书籍: ${order.book_title}\n买家: ${order.buyer_name}\n卖家: ${order.seller_name}\n价格: ¥${parseFloat(order.price || 0).toFixed(2)}\n状态: ${order.status}\n创建时间: ${formatDate(order.created_at)}`);
+            }
+        }
+
+        // 初始化侧边栏切换
+        function initSidebarToggle() {
+            const sidebarToggle = document.querySelector('.sidebar-toggle');
+            const sidebar = document.querySelector('.sidebar');
+            
+            if (sidebarToggle && sidebar) {
+                sidebarToggle.addEventListener('click', function() {
+                    sidebar.classList.toggle('collapsed');
+                });
+            }
+        }
+
+        // 监听筛选条件变化
+        document.getElementById('statusFilter').addEventListener('change', function() {
+            currentPage = 1;
+            loadOrders(1);
+        });
+
+        document.getElementById('timeFilter').addEventListener('change', function() {
+            currentPage = 1;
+            loadOrders(1);
+        });
+    </script>
+</body>
+</html>
+

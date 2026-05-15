@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理员数据分析</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/variables.css') }}?v=1.0" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/global.css') }}?v=1.0" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/admin.css') }}?v=2.0" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            background-color: #f5f7fa;
+        }
+        .analytics-wrapper {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 32px 20px 48px;
+        }
+        .analytics-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+        .analytics-section {
+            background: #fff;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
+            margin-bottom: 24px;
+        }
+        .chart-container {
+            position: relative;
+            min-height: 320px;
+        }
+        .summary-card {
+            border-radius: 16px;
+            padding: 18px;
+            background: linear-gradient(135deg, #eff6ff, #ffffff);
+            border: 1px solid #e2e8f0;
+        }
+        .summary-card h3 {
+            font-size: 32px;
+            margin: 0;
+        }
+        .summary-card p {
+            margin: 4px 0 0;
+            color: #64748b;
+        }
+        .table thead {
+            background-color: #f8fafc;
+        }
+    </style>
+</head>
+<body>
+    <div class="analytics-wrapper">
+        <div class="analytics-header">
+            <div>
+                <h1 class="h3 mb-1">数据分析</h1>
+                <p class="text-muted mb-0">基于本地数据库的实时洞察</p>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{{ url_for('admin_page') }}" class="btn btn-outline-secondary">
+                    <i class="fa fa-arrow-left me-2"></i>返回控制台
+                </a>
+            </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+            <div class="col-md-3">
+                <div class="summary-card">
+                    <p>书籍总数</p>
+                    <h3>{{ analytics_data.summary.total_books }}</h3>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="summary-card">
+                    <p>注册用户</p>
+                    <h3>{{ analytics_data.summary.total_users }}</h3>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="summary-card">
+                    <p>本月销量</p>
+                    <h3>{{ analytics_data.summary.monthly_sales }}</h3>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="summary-card">
+                    <p>待审核</p>
+                    <h3>{{ analytics_data.summary.pending_reviews }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <div class="analytics-section">
+                    <h5 class="mb-3">书籍分类分布</h5>
+                    <div class="chart-container">
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="analytics-section">
+                    <h5 class="mb-3">订单状态占比</h5>
+                    <div class="chart-container">
+                        <canvas id="orderStatusChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="analytics-section mt-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h5 class="mb-1">最新上架书籍</h5>
+                    <p class="text-muted mb-0">最近 5 条记录</p>
+                </div>
+                <span class="badge bg-primary-subtle text-primary">平均价格 ¥{{ analytics_data.summary.avg_price }}</span>
+            </div>
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th>书名</th>
+                            <th>分类</th>
+                            <th>价格</th>
+                            <th>状态</th>
+                            <th>发布时间</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for book in analytics_data.books.recent %}
+                        <tr>
+                            <td>{{ book.title }}</td>
+                            <td>
+                                {% if book.category == 'textbook' %}教材教辅
+                                {% elif book.category == 'postgraduate' %}考研资料
+                                {% elif book.category == 'literature' %}文学小说
+                                {% elif book.category == 'professional' %}专业书籍
+                                {% elif book.category == 'other' %}其他书籍
+                                {% else %}{{ book.category }}{% endif %}
+                            </td>
+                            <td>¥{{ '%.2f'|format(book.price) }}</td>
+                            <td>
+                                <span class="badge {% if book.status == 'available' %}bg-success-subtle text-success{% else %}bg-secondary-subtle text-secondary{% endif %}">
+                                    {% if book.status == 'available' %}在售
+                                    {% elif book.status == 'sold' %}已售出
+                                    {% elif book.status == 'pending' %}待处理
+                                    {% else %}{{ book.status }}{% endif %}
+                                </span>
+                            </td>
+                            <td>{{ book.created_at }}</td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="5" class="text-center text-muted">暂无书籍数据</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="analytics-section">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h5 class="mb-1">最新订单</h5>
+                    <p class="text-muted mb-0">最近 5 条订单记录</p>
+                </div>
+                <span class="badge bg-info-subtle text-info">订单总数 {{ analytics_data.orders.total }}</span>
+            </div>
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th>书名</th>
+                            <th>金额</th>
+                            <th>状态</th>
+                            <th>时间</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in analytics_data.orders.recent %}
+                        <tr>
+                            <td>{{ order.book_title }}</td>
+                            <td>¥{{ '%.2f'|format(order.price) }}</td>
+                            <td>
+                                <span class="badge {% if order.status == 'completed' %}bg-success{% elif order.status == 'pending' %}bg-warning text-dark{% elif order.status == 'processing' %}bg-info{% elif order.status == 'cancelled' %}bg-danger{% else %}bg-secondary{% endif %}">
+                                    {% if order.status == 'pending' %}待处理
+                                    {% elif order.status == 'processing' %}处理中
+                                    {% elif order.status == 'completed' %}已完成
+                                    {% elif order.status == 'cancelled' %}已取消
+                                    {% else %}{{ order.status }}{% endif %}
+                                </span>
+                            </td>
+                            <td>{{ order.created_at }}</td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="4" class="text-center text-muted">暂无订单数据</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const analyticsData = {{ analytics_data|tojson }};
+
+        // 分类名称映射
+        const categoryMap = {
+            'textbook': '教材教辅',
+            'postgraduate': '考研资料',
+            'literature': '文学小说',
+            'professional': '专业书籍',
+            'other': '其他书籍'
+        };
+
+        // 订单状态映射
+        const statusMap = {
+            'pending': '待处理',
+            'processing': '处理中',
+            'completed': '已完成',
+            'cancelled': '已取消'
+        };
+
+        // 转换分类标签
+        function translateCategory(category) {
+            return categoryMap[category] || category;
+        }
+
+        // 转换状态标签
+        function translateStatus(status) {
+            return statusMap[status] || status;
+        }
+
+        const categoryCtx = document.getElementById('categoryChart');
+        if (categoryCtx && Object.keys(analyticsData.books.by_category).length > 0) {
+            const categoryData = analyticsData.books.by_category;
+            const categoryLabels = Object.keys(categoryData).map(translateCategory);
+            const categoryValues = Object.values(categoryData);
+            
+            new Chart(categoryCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: categoryLabels,
+                    datasets: [{
+                        data: categoryValues,
+                        backgroundColor: ['#2563eb', '#16a34a', '#f59e0b', '#dc2626', '#0ea5e9', '#6366f1'],
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+        }
+
+        const orderCtx = document.getElementById('orderStatusChart');
+        if (orderCtx && Object.keys(analyticsData.orders.status_breakdown).length > 0) {
+            const statusData = analyticsData.orders.status_breakdown;
+            const statusLabels = Object.keys(statusData).map(translateStatus);
+            const statusValues = Object.values(statusData);
+            
+            new Chart(orderCtx, {
+                type: 'bar',
+                data: {
+                    labels: statusLabels,
+                    datasets: [{
+                        label: '订单数量',
+                        data: statusValues,
+                        backgroundColor: '#0ea5e9'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
+

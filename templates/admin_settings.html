@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>系统设置 - 管理员控制台</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/variables.css') }}?v=1.0" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/global.css') }}?v=1.0" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/admin.css') }}?v=2.0" rel="stylesheet">
+    <style>
+        .settings-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .settings-section {
+            background: #fff;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        .settings-section h4 {
+            margin-bottom: 20px;
+            color: var(--text-color);
+            font-weight: 600;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 12px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-color);
+        }
+        .form-control {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 14px;
+            transition: var(--transition);
+        }
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1);
+        }
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .checkbox-group input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        .btn-logout {
+            background-color: var(--danger-color);
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .btn-logout:hover {
+            background-color: #d32f2f;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(234, 67, 53, 0.3);
+        }
+        .btn-save {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .btn-save:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(26, 115, 232, 0.3);
+        }
+        .settings-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background-color: var(--light-gray);
+            color: var(--text-color);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: var(--transition);
+        }
+        .back-btn:hover {
+            background-color: #e9ecef;
+            color: var(--primary-color);
+        }
+    </style>
+</head>
+<body class="admin-body">
+    <!-- 侧边栏导航 -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <img src="{{ url_for('static', filename='img/logo.png') }}" alt="校园书递" class="sidebar-logo">
+            <span class="sidebar-title">校园书递</span>
+        </div>
+        <nav class="sidebar-nav">
+            <ul class="nav-list">
+                <li class="nav-item">
+                    <a href="{{ url_for('admin_page') }}" class="nav-link">
+                        <i class="fa fa-dashboard"></i>
+                        <span>控制台</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fa fa-book"></i>
+                        <span>书籍管理</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fa fa-users"></i>
+                        <span>用户管理</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ url_for('admin_analytics_page') }}" class="nav-link">
+                        <i class="fa fa-bar-chart"></i>
+                        <span>数据分析</span>
+                    </a>
+                </li>
+                <li class="nav-item active">
+                    <a href="{{ url_for('admin_settings_page') }}" class="nav-link">
+                        <i class="fa fa-cog"></i>
+                        <span>系统设置</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </aside>
+
+    <!-- 顶部导航栏 -->
+    <header class="top-navbar">
+        <div class="header-left">
+            <button class="sidebar-toggle">
+                <i class="fa fa-bars"></i>
+            </button>
+            <div class="brand-container">
+                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="校园书递" class="logo-btn">
+                <span class="page-title">系统设置</span>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="user-profile">
+                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="管理员头像" class="avatar">
+                <span class="username">{{ username }}</span>
+                <i class="fa fa-chevron-down"></i>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主内容区域 -->
+    <main class="main-content">
+        <div class="container-fluid">
+            <div class="settings-container">
+                <div class="settings-header">
+                    <div>
+                        <h2 class="mb-1">系统设置</h2>
+                        <p class="text-muted mb-0">管理系统配置和参数</p>
+                    </div>
+                    <a href="{{ url_for('admin_page') }}" class="back-btn">
+                        <i class="fa fa-arrow-left"></i>
+                        返回控制台
+                    </a>
+                </div>
+
+                <!-- 基本设置 -->
+                <div class="settings-section">
+                    <h4><i class="fa fa-cog me-2"></i>基本设置</h4>
+                    <form id="settingsForm">
+                        <div class="form-group">
+                            <label for="systemName">系统名称</label>
+                            <input type="text" class="form-control" id="systemName" value="{{ settings.get('systemName', '校园书递') }}" placeholder="请输入系统名称">
+                        </div>
+                        <div class="form-group">
+                            <label for="pageSize">每页显示条数</label>
+                            <input type="number" class="form-control" id="pageSize" value="{{ settings.get('pageSize', 10) }}" min="5" max="50" placeholder="5-50之间的数字">
+                            <small class="text-muted">建议值：10-20</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="cacheDays">自动清理缓存天数</label>
+                            <input type="number" class="form-control" id="cacheDays" value="{{ settings.get('cacheDays', 7) }}" min="1" max="30" placeholder="1-30之间的数字">
+                            <small class="text-muted">系统将自动清理超过指定天数的缓存数据</small>
+                        </div>
+                        <div class="form-group">
+                            <label>注册开关</label>
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="enableRegister" {% if settings.get('enableRegister', True) %}checked{% endif %}>
+                                <label for="enableRegister" style="margin: 0; cursor: pointer;">开启用户注册</label>
+                            </div>
+                            <small class="text-muted">关闭后，新用户将无法注册账号</small>
+                        </div>
+                        <div class="form-group">
+                            <label>系统维护模式</label>
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="maintenanceMode" {% if settings.get('maintenanceMode', False) %}checked{% endif %}>
+                                <label for="maintenanceMode" style="margin: 0; cursor: pointer;">启用维护模式</label>
+                            </div>
+                            <small class="text-muted">启用后，普通用户将无法访问系统</small>
+                        </div>
+                        <button type="submit" class="btn-save">
+                            <i class="fa fa-save me-2"></i>保存设置
+                        </button>
+                    </form>
+                </div>
+
+                <!-- 安全设置 -->
+                <div class="settings-section">
+                    <h4><i class="fa fa-shield-alt me-2"></i>安全设置</h4>
+                    <div class="form-group">
+                        <label for="sessionTimeout">会话超时时间（分钟）</label>
+                        <input type="number" class="form-control" id="sessionTimeout" value="{{ settings.get('sessionTimeout', 30) }}" min="5" max="1440" placeholder="5-1440之间的数字">
+                        <small class="text-muted">用户无操作超过指定时间将自动退出登录</small>
+                    </div>
+                    <div class="form-group">
+                        <label>密码策略</label>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="requireStrongPassword" {% if settings.get('requireStrongPassword', True) %}checked{% endif %}>
+                            <label for="requireStrongPassword" style="margin: 0; cursor: pointer;">要求强密码</label>
+                        </div>
+                        <small class="text-muted">密码需包含大小写字母、数字和特殊字符，长度至少8位</small>
+                    </div>
+                </div>
+
+                <!-- 通知设置 -->
+                <div class="settings-section">
+                    <h4><i class="fa fa-bell me-2"></i>通知设置</h4>
+                    <div class="form-group">
+                        <label>邮件通知</label>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="enableEmailNotification" {% if settings.get('enableEmailNotification', True) %}checked{% endif %}>
+                            <label for="enableEmailNotification" style="margin: 0; cursor: pointer;">启用邮件通知</label>
+                        </div>
+                        <small class="text-muted">系统将发送重要通知到管理员邮箱</small>
+                    </div>
+                    <div class="form-group">
+                        <label>系统消息</label>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="enableSystemMessage" {% if settings.get('enableSystemMessage', True) %}checked{% endif %}>
+                            <label for="enableSystemMessage" style="margin: 0; cursor: pointer;">启用系统消息推送</label>
+                        </div>
+                        <small class="text-muted">在系统内显示重要消息和公告</small>
+                    </div>
+                </div>
+
+                <!-- 退出登录 -->
+                <div class="settings-section">
+                    <h4><i class="fa fa-sign-out-alt me-2"></i>账户操作</h4>
+                    <div class="form-group">
+                        <p class="text-muted mb-3">退出当前登录的管理员账户</p>
+                        <button type="button" class="btn-logout" id="logoutBtn">
+                            <i class="fa fa-sign-out-alt me-2"></i>退出登录
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- 引入全局JavaScript文件 -->
+    <script src="{{ url_for('static', filename='js/global.js') }}" defer></script>
+    <!-- 引入通用功能模块 -->
+    <script src="{{ url_for('static', filename='js/common.js') }}" defer></script>
+    
+    <script>
+        // 保存设置
+        document.getElementById('settingsForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const settings = {
+                systemName: document.getElementById('systemName').value,
+                pageSize: parseInt(document.getElementById('pageSize').value),
+                cacheDays: parseInt(document.getElementById('cacheDays').value),
+                enableRegister: document.getElementById('enableRegister').checked,
+                maintenanceMode: document.getElementById('maintenanceMode').checked,
+                sessionTimeout: parseInt(document.getElementById('sessionTimeout').value),
+                requireStrongPassword: document.getElementById('requireStrongPassword').checked,
+                enableEmailNotification: document.getElementById('enableEmailNotification').checked,
+                enableSystemMessage: document.getElementById('enableSystemMessage').checked
+            };
+            
+            try {
+                const response = await fetch('/api/admin/settings', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify(settings)
+                });
+                
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    alert('设置保存成功！');
+                } else {
+                    alert('保存失败：' + (result.message || '未知错误'));
+                }
+            } catch (error) {
+                console.error('保存设置失败:', error);
+                alert('保存设置时发生错误，请稍后重试');
+            }
+        });
+        
+        // 退出登录
+        document.getElementById('logoutBtn').addEventListener('click', async function() {
+            if (!confirm('确定要退出登录吗？')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/logout', {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+                
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    window.location.href = '/login';
+                } else {
+                    alert('退出登录失败：' + (result.message || '未知错误'));
+                }
+            } catch (error) {
+                console.error('退出登录失败:', error);
+                // 即使请求失败，也尝试跳转到登录页
+                window.location.href = '/login';
+            }
+        });
+    </script>
+</body>
+</html>

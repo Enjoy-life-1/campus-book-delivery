@@ -1,0 +1,595 @@
+:root {
+    --primary: #007f73;
+    --primary-light: #009688;
+    --primary-dark: #00665c;
+    --secondary: #ecfeff;
+    --text-dark: #1e293b;
+    --text-gray: #64748b;
+    --shadow: 0 4px 20px rgba(0,0,0,0.08);
+    --radius: 12px;
+}
+
+body {
+    font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    color: var(--text-dark);
+    background-color: #f8fafc;
+    line-height: 1.6;
+}
+
+.navbar {
+    background-color: white !important;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    padding: 0.8rem 0;
+}
+
+.navbar-brand {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--primary) !important;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.book-detail-section {
+    padding: 3rem 0;
+}
+
+.book-card {
+    background-color: white;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    border: 1px solid var(--border-color-light);
+}
+
+.book-image {
+    width: 100%;
+    height: auto;
+    border-radius: var(--radius) 0 0 var(--radius);
+}
+
+.book-info {
+    padding: 2rem;
+}
+
+.book-title {
+    font-size: 1.8rem;
+    color: var(--text-dark);
+    margin-bottom: 0.5rem;
+}
+
+.book-author {
+    color: var(--text-gray);
+    margin-bottom: 1.5rem;
+}
+
+.book-price {
+    font-size: 1.8rem;
+    color: #dc2626;
+    font-weight: 600;
+    margin: 1.5rem 0;
+}
+
+.book-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin: 1.5rem 0;
+    padding: 1rem 0;
+    border-top: 1px solid var(--border-color-light);
+    border-bottom: 1px solid var(--border-color-light);
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.meta-item i {
+    color: var(--primary);
+}
+
+.book-description {
+    margin: 1.5rem 0;
+}
+
+.book-description h5 {
+    margin-bottom: 1rem;
+    color: var(--primary-dark);
+}
+
+.btn-contact {
+    background-color: var(--primary);
+    color: white;
+    border: none;
+    padding: 0.8rem 2rem;
+    border-radius: var(--radius);
+    font-weight: 500;
+    margin-right: 1rem;
+    transition: var(--transition);
+    box-shadow: var(--shadow-sm);
+    font-size: var(--font-base);
+}
+
+.btn-contact:hover {
+    background-color: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn-contact:active {
+    transform: translateY(0);
+    box-shadow: var(--shadow-sm);
+}
+
+.seller-info {
+    background-color: var(--secondary);
+    padding: 1.5rem;
+    border-radius: var(--radius);
+    margin-top: 2rem;
+}
+
+.seller-info h5 {
+    color: var(--primary-dark);
+    margin-bottom: 1rem;
+}
+
+/* 联系卖家相关样式 */
+.contact-modal .modal-dialog {
+    max-width: 600px;
+}
+
+.contact-modal .modal-header {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+    border-bottom: none;
+    padding: 1rem 1.5rem;
+}
+
+.contact-modal .modal-header .btn-close {
+    filter: invert(1);
+    opacity: 0.9;
+}
+
+.contact-modal .modal-header .btn-close:hover {
+    opacity: 1;
+}
+
+.contact-modal .modal-title {
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.contact-modal .modal-body {
+    max-height: 500px;
+    overflow-y: auto;
+    padding: 1.5rem;
+    background-color: #f5f7fa;
+    min-height: 300px;
+}
+
+.contact-modal .modal-body::-webkit-scrollbar {
+    width: 6px;
+}
+
+.contact-modal .modal-body::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.contact-modal .modal-body::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 3px;
+}
+
+.contact-modal .modal-body::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+.contact-modal .modal-footer {
+    border-top: 1px solid #e9ecef;
+    padding: 1rem 1.5rem;
+    background-color: white;
+}
+
+/* 消息容器 */
+.message-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+/* 消息项样式 */
+.message-item {
+    display: flex;
+    gap: 0.75rem;
+    max-width: 80%;
+    animation: messageSlideIn 0.3s ease-out;
+}
+
+@keyframes messageSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.message-item.message-sent {
+    margin-left: auto;
+    flex-direction: row-reverse;
+}
+
+.message-item.message-received {
+    margin-right: auto;
+}
+
+/* 消息头像 */
+.message-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.message-sent .message-avatar {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+}
+
+.message-received .message-avatar {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+/* 消息内容气泡 */
+.message-bubble {
+    padding: 0.75rem 1rem;
+    border-radius: 18px;
+    position: relative;
+    word-wrap: break-word;
+    line-height: 1.5;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.message-sent .message-bubble {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+    border-bottom-right-radius: 4px;
+}
+
+.message-received .message-bubble {
+    background: white;
+    color: #333;
+    border: 1px solid #e9ecef;
+    border-bottom-left-radius: 4px;
+}
+
+.message-content {
+    font-size: 0.95rem;
+    margin-bottom: 0.25rem;
+}
+
+.message-time {
+    font-size: 0.7rem;
+    opacity: 0.7;
+    margin-top: 0.25rem;
+}
+
+.message-sent .message-time {
+    text-align: right;
+}
+
+.message-received .message-time {
+    text-align: left;
+}
+
+/* 系统消息样式 */
+.message-system {
+    text-align: center;
+    margin: 1rem auto;
+    max-width: 70%;
+    padding: 0.5rem 1rem;
+    background-color: #fff3cd;
+    border: 1px solid #ffc107;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    color: #856404;
+}
+
+/* 输入提示指示器 */
+.typing-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    margin: 0.5rem 0;
+    color: #666;
+    font-size: 0.85rem;
+}
+
+.typing-indicator i {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.typing-dots {
+    display: inline-flex;
+    gap: 0.2rem;
+}
+
+.typing-dots span {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: #999;
+    animation: typingDot 1.4s infinite;
+}
+
+.typing-dots span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.typing-dots span:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes typingDot {
+    0%, 60%, 100% {
+        transform: translateY(0);
+        opacity: 0.7;
+    }
+    30% {
+        transform: translateY(-8px);
+        opacity: 1;
+    }
+}
+
+/* 消息输入区域 */
+.message-input-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+/* 快速回复按钮 */
+.quick-replies {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.5rem 0;
+}
+
+.quick-reply-btn {
+    padding: 0.4rem 0.9rem;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    color: #495057;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.quick-reply-btn:hover {
+    background-color: #e9ecef;
+    border-color: #28a745;
+    color: #28a745;
+    transform: translateY(-1px);
+}
+
+.quick-reply-btn:active {
+    transform: translateY(0);
+}
+
+/* 消息输入框 */
+.message-input-wrapper {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-end;
+}
+
+.message-input {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 24px;
+    padding: 0.5rem 1rem;
+    transition: all 0.2s;
+}
+
+.message-input:focus-within {
+    background-color: white;
+    border-color: #28a745;
+    box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+}
+
+.message-input input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    outline: none;
+    font-size: 0.9rem;
+    padding: 0.5rem 0;
+    max-height: 100px;
+    resize: none;
+}
+
+.message-input input::placeholder {
+    color: #adb5bd;
+}
+
+.message-input-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.input-action-btn {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: transparent;
+    color: #6c757d;
+    cursor: pointer;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.input-action-btn:hover {
+    background-color: #e9ecef;
+    color: #28a745;
+}
+
+.send-btn {
+    width: 38px;
+    height: 38px;
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 2px 4px rgba(40, 167, 69, 0.3);
+}
+
+.send-btn:hover:not(:disabled) {
+    transform: scale(1.1);
+    box-shadow: 0 4px 8px rgba(40, 167, 69, 0.4);
+}
+
+.send-btn:active:not(:disabled) {
+    transform: scale(0.95);
+}
+
+.send-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* 收藏按钮样式 */
+.btn-collect {
+    background-color: #fff;
+    color: var(--primary);
+    border: 1px solid var(--primary);
+    padding: 0.8rem 2rem;
+    border-radius: var(--radius);
+    font-weight: 500;
+    transition: var(--transition);
+    margin-right: 1rem;
+    box-shadow: var(--shadow-xs);
+}
+
+.btn-collect:hover {
+    background-color: #f0fdfa;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+}
+
+.btn-collect.collected {
+    background-color: var(--primary);
+    color: white;
+    box-shadow: var(--shadow-sm);
+}
+
+.btn-collect.collected:hover {
+    background-color: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+/* 购买按钮样式 */
+.btn-buy {
+    background-color: #dc2626;
+    color: white;
+    border: none;
+    padding: 0.8rem 2rem;
+    border-radius: var(--radius);
+    font-weight: 500;
+    transition: all 0.3s;
+}
+
+.btn-buy:hover {
+    background-color: #b91c1c;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.2);
+}
+
+.btn-buy:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(220, 38, 38, 0.2);
+}
+
+/* 已购买按钮样式 */
+.btn-bought {
+    background-color: #6c757d !important;
+    color: white !important;
+    cursor: not-allowed;
+}
+
+/* 购物车按钮样式 */
+.btn-cart {
+    background-color: #f59e0b;
+    color: white;
+    border: none;
+    padding: 0.8rem 2rem;
+    border-radius: var(--radius);
+    font-weight: 500;
+    transition: all 0.3s;
+    margin-right: 1rem;
+}
+
+.btn-cart:hover {
+    background-color: #d97706;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
+}
+
+.btn-cart:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(245, 158, 11, 0.2);
+}
+
+.btn-cart.btn-in-cart {
+    background-color: #10b981;
+}
+
+.btn-cart.btn-in-cart:hover {
+    background-color: #059669;
+}
+
+.btn-bought:hover {
+    background-color: #5a6268 !important;
+    transform: none !important;
+}
+
+/* 正在输入提示 */
+.typing-indicator {
+    font-size: 0.9rem;
+    color: #64748b;
+    margin: 0.5rem 0;
+    display: none;
+}

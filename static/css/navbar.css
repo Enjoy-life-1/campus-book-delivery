@@ -1,0 +1,111 @@
+/* 导航栏组件样式 */
+/* 移除@import，直接使用CSS变量定义 */
+:root {
+    --primary: #007f73;
+    --primary-light: #009688;
+    --primary-dark: #00665c;
+    --secondary: #ecfeff;
+    --text-dark: #1e293b;
+    --text-gray: #64748b;
+    --shadow: 0 4px 20px rgba(0,0,0,0.08);
+    --shadow-hover: 0 8px 30px rgba(0,0,0,0.12);
+    --radius: 12px;
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.navbar {
+    background-color: white !important;
+    box-shadow: var(--shadow-sm);
+    padding: 0.8rem 0;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.navbar-brand {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--primary) !important;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.navbar-brand i {
+    font-size: 1.8rem;
+}
+
+.navbar-nav .nav-link {
+    font-weight: 500;
+    color: var(--text-dark) !important;
+    margin-right: 1rem;
+    position: relative;
+    transition: var(--transition);
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--radius-sm);
+}
+
+.navbar-nav .nav-link:hover,
+.navbar-nav .nav-link.active {
+    color: var(--primary) !important;
+    background-color: var(--secondary);
+}
+
+.navbar-nav .nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background-color: var(--primary);
+    transition: var(--transition);
+}
+
+.navbar-nav .nav-link:hover::after,
+.navbar-nav .nav-link.active::after {
+    width: 100%;
+}
+
+.navbar-nav .nav-link.dropdown-toggle::after {
+    margin-left: 0.5rem;
+}
+
+.dropdown-menu {
+    border: none;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    padding: 0.5rem 0;
+    margin-top: 0.5rem;
+    border: 1px solid var(--border-color-light);
+}
+
+.dropdown-item {
+    padding: 0.75rem 1.5rem;
+    transition: var(--transition-fast);
+    border-radius: var(--radius-sm);
+    margin: 0.25rem 0.5rem;
+}
+
+.dropdown-item:hover {
+    background-color: var(--secondary);
+    color: var(--primary);
+    transform: translateX(2px);
+}
+
+/* 响应式导航栏 */
+@media (max-width: 992px) {
+    .navbar-nav .nav-link {
+        margin-right: 0;
+        padding: 0.75rem 0;
+    }
+    
+    .navbar-nav .nav-link::after {
+        display: none;
+    }
+}
+
+/* 用户菜单样式 */
+#userMenu .dropdown-menu {
+    right: 0;
+    left: auto;
+}

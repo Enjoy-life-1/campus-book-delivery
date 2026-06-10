@@ -38,7 +38,15 @@ ENV/
 *.sqlite
 *.sqlite3
 database/*.json
+data/rag/
+
+# Secrets
+.env
 
 # Logs
 *.log
+.pytest_cache/
 
+# Backup / local artifacts
+backup/*.zip
+backup/*.sql

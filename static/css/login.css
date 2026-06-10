@@ -265,20 +265,10 @@ body {
     font-size: 1rem;
 }
 
-/* 身份选择 */
-.identity-select {
-    display: flex;
-    gap: 0;
-    margin-bottom: 1.6rem;
-    max-width: 400px;
-    margin-left: auto;
-    margin-right: auto;
-    border-radius: 8px;
-    overflow: hidden;
-    border: 1px solid #e2e8f0;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    transition: var(--transition);
-    animation: fadeInUp 0.8s ease-out 0.5s both;
+/* 身份选择（已废弃，统一登录） */
+.identity-select,
+.identity-btn {
+    display: none !important;
 }
 
 .identity-select:hover {

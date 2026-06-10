@@ -80,6 +80,13 @@
           <div v-if="errors.confirmPassword" class="invalid-feedback">{{ errors.confirmPassword }}</div>
         </div>
         <div class="form-group">
+          <label>所属学校</label>
+          <select v-model="form.school_id" class="form-select">
+            <option value="">请选择（可选）</option>
+            <option v-for="s in schools" :key="s.id" :value="s.id">{{ s.name }}</option>
+          </select>
+        </div>
+        <div class="form-group">
           <label>邮箱（可选）</label>
           <input 
             v-model="form.email" 
@@ -113,19 +120,26 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+// 注册：短信验证码 + 学校选择；Webhook 模式弹窗提示
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { authAPI } from '@/utils/api'
+import { authAPI, campusAPI } from '@/utils/api'
+import { useToast } from '@/composables/useToast'
+import { useSmsWebhookHint } from '@/composables/useSmsWebhookHint'
 
 const router = useRouter()
+const { show } = useToast()
+const { open: openSmsWebhookHint } = useSmsWebhookHint()
 const form = ref({
   username: '',
   password: '',
   confirmPassword: '',
   email: '',
   phone: '',
-  verifyCode: ''
+  verifyCode: '',
+  school_id: ''
 })
+const schools = ref([])
 const loading = ref(false)
 const errorMessage = ref('')
 const successMessage = ref('')
@@ -249,7 +263,11 @@ async function sendVerificationCode() {
     })
 
     if (response.success) {
-      showToast(response.message || '验证码已发送', 'success')
+      if (response.webhook_mode) {
+        openSmsWebhookHint(response.message)
+      } else {
+        showToast(response.message || '验证码已发送', 'success')
+      }
       // 开始倒计时
       codeCountdown.value = 60
       const timer = setInterval(() => {
@@ -304,7 +322,8 @@ async function handleRegister() {
       password: form.value.password,
       phone: form.value.phone.trim(),
       verifyCode: form.value.verifyCode.trim(),
-      email: form.value.email.trim() || ''
+      email: form.value.email.trim() || '',
+      school_id: form.value.school_id || ''
     })
 
     if (response.status === 'success') {
@@ -325,6 +344,11 @@ async function handleRegister() {
     loading.value = false
   }
 }
+
+onMounted(async () => {
+  const res = await campusAPI.getSchools()
+  if (res.status === 'success') schools.value = res.schools || []
+})
 </script>
 
 <style scoped>

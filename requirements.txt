@@ -1,3 +1,23 @@
+# Flask 核心
+greenlet>=3.0.3,<4
+python-dotenv>=1.0.0
 Flask==2.3.2
+Werkzeug==2.3.8
 Flask-CORS==4.0.0
 Flask-SQLAlchemy==3.0.5
+flask-sock==0.7.0
+simple-websocket==1.0.0
+Flask-Caching==2.1.0
+# 数据库与迁移
+alembic==1.13.3
+PyMySQL==1.1.1
+cryptography==43.0.3
+# 生产部署
+gunicorn==22.0.0
+waitress==3.0.0
+redis==5.0.8
+# 对象存储与短信
+oss2==2.18.6
+alibabacloud_dysmsapi20170525>=3.0.0
+# 测试
+pytest==8.3.3

@@ -1,0 +1,13 @@
+{
+  "name": "校园书递",
+  "short_name": "书递",
+  "description": "校园二手书籍交易平台",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#28a745",
+  "lang": "zh-CN",
+  "icons": [
+    { "src": "/static/img/logo.png", "sizes": "192x192", "type": "image/png", "purpose": "any" }
+  ]
+}

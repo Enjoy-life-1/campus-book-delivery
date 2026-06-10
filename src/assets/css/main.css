@@ -1,4 +1,4 @@
-/* 引入原有的CSS文件 - 使用绝对路径 */
+/* Vue 全局样式入口：聚合 legacy static/css，再定义 #app 基础 */
 @import url('/static/css/variables.css');
 @import url('/static/css/base.css');
 @import url('/static/css/navbar.css');

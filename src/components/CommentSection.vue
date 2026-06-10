@@ -79,9 +79,12 @@
 </template>
 
 <script setup>
+// 书籍详情评论：发表/删除；非 admin 需审核 pending
 import { ref, onMounted, computed } from 'vue'
 import { commentAPI } from '@/utils/api'
-import { checkAuth, getCurrentUser, saveUser } from '@/utils/auth'
+import { checkAuth, getCurrentUser } from '@/utils/auth'
+import { refreshSession } from '@/composables/useAuth'
+import { useToast } from '@/composables/useToast'
 
 const props = defineProps({
   bookId: {
@@ -95,35 +98,13 @@ const newComment = ref('')
 const loading = ref(false)
 const submitting = ref(false)
 const isLoggedIn = ref(false)
+const { show } = useToast()
 
 onMounted(async () => {
-  await checkLoginStatus()
+  const u = await refreshSession()
+  isLoggedIn.value = !!u || checkAuth()
   loadComments()
 })
-
-// 检查登录状态（从服务器获取）
-async function checkLoginStatus() {
-  try {
-    const response = await fetch('/api/user/info', {
-      credentials: 'include'
-    })
-    isLoggedIn.value = response.ok
-    if (response.ok) {
-      const data = await response.json()
-      if (data.status === 'success' && data.user) {
-        // 保存用户信息到 localStorage（如果还没有）
-        const currentUser = getCurrentUser()
-        if (!currentUser) {
-          saveUser(data.user)
-        }
-      }
-    }
-  } catch (error) {
-    console.error('检查登录状态失败:', error)
-    // 回退到本地检查
-    isLoggedIn.value = checkAuth()
-  }
-}
 
 function loadComments() {
   loading.value = true
@@ -143,15 +124,15 @@ function loadComments() {
 }
 
 async function submitComment() {
+  // POST /api/comments；pending 时不立即刷新列表
   if (!newComment.value.trim() || submitting.value) return
 
   // 再次检查登录状态
   if (!isLoggedIn.value) {
-    // 尝试从服务器获取登录状态
-    await checkLoginStatus()
+    const u = await refreshSession()
+    isLoggedIn.value = !!u
     if (!isLoggedIn.value) {
-      alert('请先登录后再发表评论')
-      window.location.href = `/login?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`
+      show('请先登录', 'error')
       return
     }
   }
@@ -165,20 +146,13 @@ async function submitComment() {
     
     if (response.status === 'success') {
       newComment.value = ''
-      // 重新加载评论列表
-      loadComments()
+      show(response.message || '评论已发表', response.comment?.audit_status === 'pending' ? 'info' : 'success')
+      if (response.comment?.audit_status === 'approved') loadComments()
     } else {
-      alert(response.message || '评论发表失败，请重试')
+      show(response.message || '发表失败', 'error')
     }
   } catch (error) {
-    console.error('发表评论失败:', error)
-    // 如果是401错误，说明未登录
-    if (error.response && error.response.status === 401) {
-      alert('请先登录后再发表评论')
-      window.location.href = `/login?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`
-    } else {
-      alert(error.message || '评论发表失败，请重试')
-    }
+    show(error.message || '发表失败', 'error')
   } finally {
     submitting.value = false
   }
@@ -200,12 +174,13 @@ function deleteComment(commentId) {
 }
 
 function canDelete(comment) {
+  // 作者或管理员可删
   if (!isLoggedIn.value) return false
   const currentUser = getCurrentUser()
   if (!currentUser) return false
   
   // 检查是否是评论作者
-  return comment.user_id === currentUser.id || currentUser.is_admin
+  return String(comment.user_id) === String(currentUser.id) || currentUser.is_admin
 }
 
 function formatTime(timeStr) {

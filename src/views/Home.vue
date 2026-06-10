@@ -48,22 +48,64 @@
           type="text" 
           class="form-control form-control-lg" 
           placeholder="搜索书名、作者、ISBN、专业方向..."
+          list="homeSearchSuggest"
+          @input="onHomeSearchInput"
           @keypress.enter="handleSearch"
         >
+        <datalist id="homeSearchSuggest">
+          <option v-for="s in searchSuggestions" :key="s.text" :value="s.text" />
+        </datalist>
         <button class="btn btn-success" type="button" @click="handleSearch">
           <i class="fa fa-search me-2"></i> 搜索书籍
         </button>
       </div>
     </div>
 
+    <div v-if="forYouBooks.length" class="container mt-4">
+      <h3 class="section-title text-center mb-3" style="color: #28a745;">猜你喜欢</h3>
+      <div class="row g-4">
+        <div class="col-md-3 col-sm-6" v-for="book in forYouBooks" :key="'fy'+book.id">
+          <BookCard :book="book" />
+        </div>
+      </div>
+    </div>
+
+    <!-- 快捷功能 -->
+    <div class="container mt-4">
+      <div class="row g-3">
+        <div class="col-md-3 col-6">
+          <router-link to="/courses" class="quick-feature card p-3 text-decoration-none text-dark h-100 border-success">
+            <h6 class="text-success mb-1"><i class="fa fa-graduation-cap"></i> 按课找书</h6>
+            <p class="mb-0 text-muted small">学院·专业·课程教材推荐</p>
+          </router-link>
+        </div>
+        <div class="col-md-3 col-6">
+          <router-link to="/wanted" class="quick-feature card p-3 text-decoration-none text-dark h-100 border-success">
+            <h6 class="text-success mb-1"><i class="fa fa-bullhorn"></i> 求购广场</h6>
+            <p class="mb-0 text-muted small">发布求购，自动匹配上架</p>
+          </router-link>
+        </div>
+        <div class="col-md-3 col-6">
+          <router-link to="/semester" class="quick-feature card p-3 text-decoration-none text-dark h-100 border-warning">
+            <h6 class="text-warning mb-1"><i class="fa fa-calendar"></i> 学期专场</h6>
+            <p class="mb-0 text-muted small">开学季/期末清仓主题活动</p>
+          </router-link>
+        </div>
+        <div class="col-md-3 col-6">
+          <router-link to="/messages" class="quick-feature card p-3 text-decoration-none text-dark h-100 border-primary">
+            <h6 class="text-primary mb-1"><i class="fa fa-envelope"></i> 站内消息</h6>
+            <p class="mb-0 text-muted small">校内面交点预约交易</p>
+          </router-link>
+        </div>
+      </div>
+    </div>
+
     <!-- 书籍特色标签区 -->
     <div class="container mt-4">
       <div class="feature-tags d-flex justify-content-center flex-wrap gap-3">
-        <div class="feature-tag"><i class="fa fa-check-circle"></i> 正版保障</div>
-        <div class="feature-tag"><i class="fa fa-money"></i> 低价转让</div>
-        <div class="feature-tag"><i class="fa fa-map-marker"></i> 校园交易</div>
-        <div class="feature-tag"><i class="fa fa-star"></i> 9成新以上</div>
-        <div class="feature-tag"><i class="fa fa-exchange"></i> 支持互换</div>
+        <router-link v-for="f in featureLinks" :key="f.to" :to="f.to" class="feature-tag text-decoration-none text-dark">
+          <i :class="['fa', f.icon]"></i> {{ f.label }}
+        </router-link>
       </div>
     </div>
 
@@ -87,6 +129,28 @@
       </div>
     </div>
 
+    <!-- 系统公告 -->
+    <div v-if="announcements.length" class="container mt-4">
+      <div class="alert alert-success" v-for="a in announcements.slice(0, 2)" :key="a.id">
+        <strong>{{ a.title }}</strong> — {{ a.content.slice(0, 80) }}{{ a.content.length > 80 ? '...' : '' }}
+      </div>
+    </div>
+
+    <!-- 最新上架 -->
+    <div class="books-section mt-4">
+      <div class="container">
+        <div class="section-header">
+          <h3 class="section-title text-center" style="color: #28a745;">最新上架</h3>
+          <router-link to="/booksList?time_range=week" class="section-more text-success">更多 <i class="fa fa-angle-right"></i></router-link>
+        </div>
+        <div class="row g-4">
+          <div class="col-md-4 col-sm-6" v-for="book in latestBooks" :key="'n'+book.id">
+            <BookCard :book="book" />
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- 热门书籍 -->
     <div class="books-section mt-4">
       <div class="container">
@@ -103,27 +167,7 @@
         </div>
         <div v-else class="row g-4">
           <div class="col-md-4 col-sm-6" v-for="book in hotBooks" :key="book.id">
-            <router-link :to="`/book/${book.id}`" class="text-decoration-none">
-              <div class="card">
-                <img :src="getBookImage(book)" class="card-img-top" :alt="book.title" loading="lazy">
-                <div class="card-body">
-                  <h5 class="card-title">{{ book.title }}</h5>
-                  <div class="card-author">
-                    <i class="fa fa-pencil"></i> 作者：{{ book.author || '未知作者' }}
-                  </div>
-                  <div class="card-meta">
-                    <span class="price">¥{{ formatPrice(book.price) }}</span>
-                    <span class="book-tag">{{ getCategoryName(book.category) }}</span>
-                  </div>
-                  <div class="book-additional">
-                    <span v-if="book.stock > 0" class="book-stock">库存：{{ book.stock }}</span>
-                  </div>
-                  <div class="create-time">
-                    <i class="fa fa-clock-o"></i> {{ formatDate(book.created_at) }} · {{ book.owner_name || book.seller }}
-                  </div>
-                </div>
-              </div>
-            </router-link>
+            <BookCard :book="book" />
           </div>
         </div>
       </div>
@@ -160,7 +204,7 @@
           </div>
         </div>
         <div class="copyright">
-          © 2025 校园书递 版权所有 | 大学生校园二手书籍交易平台
+          © 2026 校园书递 版权所有 | 大学生校园二手书籍交易平台
         </div>
       </div>
     </footer>
@@ -168,16 +212,42 @@
 </template>
 
 <script setup>
+// 首页：轮播、搜索、推荐、分类、公告、最新/热门书籍
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import Navbar from '@/components/Navbar.vue'
-import { bookAPI } from '@/utils/api'
-import { getCategoryName, formatPrice, formatDate } from '@/utils/helpers'
+import BookCard from '@/components/BookCard.vue'
+import { bookAPI, announcementAPI, discoveryAPI } from '@/utils/api'
+import { checkAuth } from '@/utils/auth'
+import { isOnline, saveHomeBooks, loadHomeBooks } from '@/utils/offlineStore'
 
 const router = useRouter()
+const featureLinks = [  // 特色标签入口
+  { to: '/feature/genuine', icon: 'fa-check-circle', label: '正版保障' },
+  { to: '/feature/low-price', icon: 'fa-money', label: '低价转让' },
+  { to: '/feature/campus-trade', icon: 'fa-map-marker', label: '校园交易' },
+  { to: '/feature/new-condition', icon: 'fa-star', label: '9成新以上' },
+  { to: '/feature/exchange', icon: 'fa-exchange', label: '支持互换' }
+]
 const searchKeyword = ref('')
 const hotBooks = ref([])
+const latestBooks = ref([])
+const announcements = ref([])
 const loading = ref(false)
+const forYouBooks = ref([])
+const searchSuggestions = ref([])
+let homeSuggestTimer = null
+
+function onHomeSearchInput() {
+  // 搜索框输入防抖，拉取联想词
+  clearTimeout(homeSuggestTimer)
+  const q = searchKeyword.value.trim()
+  if (q.length < 1) { searchSuggestions.value = []; return }
+  homeSuggestTimer = setTimeout(async () => {
+    const res = await discoveryAPI.searchSuggest(q).catch(() => null)
+    if (res?.status === 'success') searchSuggestions.value = res.suggestions || []
+  }, 280)
+}
 
 const categories = [
   { key: 'textbook', name: '教材教辅', desc: '大学教材、习题集、课件、辅导资料', icon: 'fa fa-graduation-cap' },
@@ -196,11 +266,19 @@ function getBookImage(book) {
 }
 
 function handleSearch() {
+  // 跳转书籍列表并带关键词
   if (searchKeyword.value.trim()) {
     router.push({ path: '/booksList', query: { keyword: searchKeyword.value.trim() } })
   } else {
     router.push('/booksList')
   }
+}
+
+async function loadAnnouncements() {
+  try {
+    const res = await announcementAPI.getAnnouncements()
+    if (res.status === 'success') announcements.value = res.announcements || []
+  } catch (_) {}
 }
 
 async function loadHotBooks() {
@@ -209,20 +287,37 @@ async function loadHotBooks() {
     const response = await bookAPI.getBooks({ page_size: 1000 })
     if (response.status === 'success') {
       const books = response.books || []
-      // 只显示在售的书籍，取前6本
+      latestBooks.value = books.filter(b => b.status === 'available').slice(0, 3)  // 最新 3 本
       hotBooks.value = books
         .filter(book => book.status === 'available')
-        .slice(0, 6)
+        .slice(0, 6)  // 热门 6 本
+      saveHomeBooks(books)  // 离线缓存
     }
   } catch (error) {
-    console.error('加载热门书籍失败:', error)
+    if (!isOnline()) {  // 断网读本地缓存
+      const cached = loadHomeBooks()
+      if (cached) {
+        latestBooks.value = cached.filter(b => b.status === 'available').slice(0, 3)
+        hotBooks.value = cached.filter(b => b.status === 'available').slice(0, 6)
+      }
+    } else {
+      console.error('加载热门书籍失败:', error)
+    }
   } finally {
     loading.value = false
   }
 }
 
+async function loadForYou() {
+  if (!checkAuth()) return  // 登录后才展示「猜你喜欢」
+  const res = await discoveryAPI.forYou({ limit: 4 }).catch(() => null)
+  if (res?.status === 'success') forYouBooks.value = res.books || []
+}
+
 onMounted(() => {
+  loadAnnouncements()
   loadHotBooks()
+  loadForYou()
 })
 </script>
 

@@ -1,0 +1,20 @@
+# GitHub Actions：push/PR 时跑 pytest + npm build
+name: CIon: [push, pull_request]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: pip install -r requirements.txt
+      - run: python scripts/init_db.py      # 建表 + 种子数据
+      - run: python upgrade_db.py           # 增量列迁移
+      - run: alembic upgrade head            # 外键 revision
+      - run: python -m pytest tests/ -q     # 冒烟 + schema + RAG
+      - run: npm install
+      - run: npm run build                   # 验证前端可打包
